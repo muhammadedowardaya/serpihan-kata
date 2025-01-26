@@ -1,0 +1,195 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model account {
+    id                       String   @id @default(cuid())
+    userId                   String   @unique(map: "Account_userId_key")
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String?  @db.Text
+    access_token             String?  @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String?  @db.Text
+    session_state            String?
+    refresh_token_expires_in Int?
+    createdAt                DateTime @default(now())
+    updatedAt                DateTime @updatedAt
+    user                     user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Account_userId_fkey")
+
+    @@unique([provider, providerAccountId], map: "Account_provider_providerAccountId_key")
+    @@index([userId], map: "Account_userId_idx")
+}
+
+model notification {
+    id        String           @id @default(cuid())
+    userId    String // User yang akan menerima notifikasi
+    user      user             @relation("UserNotification", fields: [userId], references: [id], onDelete: Cascade)
+    actorId   String // User yang melakukan aksi (misalnya memberi like atau komen)
+    actor     user             @relation("ActorNotification", fields: [actorId], references: [id], onDelete: Cascade)
+    type      NotificationType // Jenis notifikasi (LIKE, COMMENT, REPLY, dll.)
+    postId    String? // Post yang terkait (jika aksi dilakukan pada post)
+    post      post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+    commentId String? // Comment yang terkait (jika aksi dilakukan pada komentar)
+    comment   comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    isRead    Boolean          @default(false) // Status apakah notifikasi sudah dibaca
+    createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+    LIKE_POST
+    LIKE_COMMENT
+    COMMENT_POST
+    REPLY_COMMENT
+}
+
+model like {
+    id        String   @id @default(cuid())
+    userId    String // User yang memberikan like
+    user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    postId    String? // Postingan yang diberi like (opsional jika ini adalah like komentar)
+    post      post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+    commentId String? // Komentar yang diberi like (opsional jika ini adalah like postingan)
+    comment   comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@unique([userId, postId], map: "UniquePostLike") // Hindari user memberi like yang sama untuk satu postingan
+    @@unique([userId, commentId], map: "UniqueCommentLike") // Hindari user memberi like yang sama untuk satu komentar
+}
+
+model comment {
+    id      String  @id @default(cuid())
+    message String
+    liked   Int     @default(0)
+    user    user?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId  String?
+    post    post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId  String?
+    likes   like[]
+
+    parentId String?
+    parent   comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies  comment[] @relation("CommentReplies")
+
+    replyToId       String?
+    replyTo         comment?       @relation("SpecificReply", fields: [replyToId], references: [id], onDelete: Cascade)
+    specificReplies comment[]      @relation("SpecificReply")
+    notifications   notification[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model post {
+    id            String         @id
+    title         String
+    slug          String         @unique(map: "Post_slug_key")
+    description   String
+    content       String         @db.LongText
+    thumbnail     String?
+    views         Int            @default(0)
+    userId        String
+    user          user           @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Post_userId_fkey")
+    images        image[]
+    comments      comment[]
+    likes         like[]
+    savedPost     savedPost[]
+    categoryId    String?
+    category      category?      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    notifications notification[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId], map: "Post_userId_idx")
+    @@index([categoryId], map: "Post_categoryId_idx")
+}
+
+model user {
+    id            String         @id @default(cuid())
+    name          String?
+    username      String?        @unique(map: "User_username_key")
+    email         String?        @unique(map: "User_email_key")
+    emailVerified DateTime?
+    image         String?
+    bio           String?
+    role          UserRole       @default(USER)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    account       account?
+    posts         post[]
+    comments      comment[]
+    session       session[]
+    likes         like[]
+    savedPosts    savedPost[]
+    socialMediaId String?        @unique
+    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id])
+    notifications notification[] @relation("UserNotification") // Notifikasi yang diterima
+    actions       notification[] @relation("ActorNotification") // Notifikasi yang dipicu oleh user
+}
+
+model socialMedia {
+    id        String  @id @default(cuid())
+    instagram String?
+    tiktok    String?
+    facebook  String?
+    github    String?
+    youtube   String?
+    linkedin  String?
+    other     String?
+
+    user user?
+}
+
+model savedPost {
+    id        String   @id @default(cuid())
+    userId    String // User yang menyimpan postingan
+    user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    postId    String // Postingan yang disimpan
+    post      post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+
+    @@unique([userId, postId], map: "UniqueSavedPost") // Hindari user menyimpan postingan yang sama dua kali
+}
+
+enum UserRole {
+    ADMIN
+    USER
+}
+
+model category {
+    id    String @id @default(cuid())
+    label String
+    value String
+    posts post[]
+}
+
+model image {
+    id        String   @id @default(cuid())
+    url       String   @unique
+    postId    String? // Menghubungkan ke postingan
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    post      post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique(map: "Session_sessionToken_key")
+    userId       String
+    expires      DateTime
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    user         user     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Session_userId_fkey")
+
+    @@index([userId], map: "Session_userId_idx")
+}

@@ -1,0 +1,19 @@
+.ql-container {
+	border: none !important;
+    
+	.ql-editor {
+		h1 {
+			margin: 10px 0;
+		}
+
+		img {
+			margin: 10px auto;
+		}
+
+		.ql-code-block-container {
+			select {
+				display: none !important;
+			}
+		}
+	}
+}
