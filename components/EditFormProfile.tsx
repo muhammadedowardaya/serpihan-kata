@@ -205,9 +205,9 @@ const EditFromProfile = () => {
 					<FormLabel>Profile Picture</FormLabel>
 					<div className="flex justify-center items-center gap-2 pt-1 pb-4">
 						{getUser.isPending ? (
-							<Skeleton className="w-[100px] h-[100px] rounded-full flex-shrink-0" />
+							<Skeleton className="w-[100px] h-[100px] rounded-full shrink-0" />
 						) : previewImage || getUser.data?.image ? (
-							<div className="w-[100px] h-[100px] flex-shrink-0">
+							<div className="w-[100px] h-[100px] shrink-0">
 								<Image
 									src={
 										(previewImage as string) || (getUser.data?.image as string)
@@ -215,7 +215,7 @@ const EditFromProfile = () => {
 									alt="Profile Preview"
 									width={100}
 									height={100}
-									className="border border-black w-[100px] h-[100px] flex-shrink-0 rounded-full object-cover"
+									className="border border-black w-[100px] h-[100px] shrink-0 rounded-full object-cover"
 								/>
 							</div>
 						) : (

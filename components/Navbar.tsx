@@ -58,7 +58,7 @@ const Navbar = ({ className }: { className?: string }) => {
 
 	return (
 		<nav className={`flex justify-between items-center ${className}`}>
-			<Link href="/" className="flex-shrink-0">
+			<Link href="/" className="shrink-0">
 				<Image src="/logo-singkat-sk1x.png" alt="logo" width={30} height={30} />
 			</Link>
 
@@ -69,7 +69,7 @@ const Navbar = ({ className }: { className?: string }) => {
 					<Skeleton className="w-10 h-10 rounded-full" />
 				</div>
 			) : (
-				<div className="flex flex-shrink-0 items-center gap-5">
+				<div className="flex shrink-0 items-center gap-5">
 					{user ? (
 						<>
 							<Link href="/dashboard/posts/create" className="hidden sm:block">

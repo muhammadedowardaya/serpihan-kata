@@ -317,7 +317,7 @@ const PostContent = ({
 							</a>
 						)}
 
-						<Tooltip id="bookmark" place="top" className="!text-sm w-32">
+						<Tooltip id="bookmark" place="top" className="text-sm! w-32">
 							{isSavedPost.data
 								? 'Click to remove from saved posts'
 								: 'Click to save post'}
@@ -338,7 +338,7 @@ const PostContent = ({
 								{getPost.data?.user.username?.charAt(0)}
 							</AvatarFallback>
 						</Avatar>
-						<div className="flex flex-col gap-1 flex-shrink-0">
+						<div className="flex flex-col gap-1 shrink-0">
 							<span className="text-sm font-semibold">
 								{getPost.data?.user.name}
 							</span>

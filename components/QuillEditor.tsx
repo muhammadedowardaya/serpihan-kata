@@ -245,7 +245,7 @@ const QuillEditor = ({
 		<div
 			ref={editorContainer}
 			aria-disabled
-			className="!h-[300px] w-full border p-4"
+			className="h-[300px]! w-full border p-4"
 		></div>
 	);
 };

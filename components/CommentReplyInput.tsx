@@ -120,7 +120,7 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 	if (!replyTo) return;
 
 	return (
-		<div className="flex flex-col gap-4 w-full h-[300px] border p-4 pt-2 rounded shadow-sm">
+		<div className="flex flex-col gap-4 w-full h-[300px] border p-4 pt-2 rounded shadow-xs">
 			<span
 				className="text-gray-500 mt-2 ml-2 text-sm"
 				aria-label={`Reply to ${replyTo?.message}`}

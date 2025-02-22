@@ -172,14 +172,14 @@ const PostCard = ({
 							</h3>
 						</Link>
 					</div>
-					<Link href={`/user/${user?.username}`} className="flex-shrink-0">
+					<Link href={`/user/${user?.username}`} className="shrink-0">
 						{user && user.image ? (
 							<Image
 								src={user.image}
 								alt={user.username + ' image'}
 								width={38}
 								height={38}
-								className={`rounded-full flex-shrink-0 ${
+								className={`rounded-full shrink-0 ${
 									size === 'md' ? 'w-[48px] h-[48px]' : 'w-[38px] h-[38px]'
 								} border`}
 							/>
@@ -189,7 +189,7 @@ const PostCard = ({
 								alt="placeholder"
 								width={38}
 								height={38}
-								className={`rounded-full flex-shrink-0 ${
+								className={`rounded-full shrink-0 ${
 									size === 'md' ? 'w-[48px] h-[48px]' : 'w-[38px] h-[38px]'
 								} border`}
 							/>

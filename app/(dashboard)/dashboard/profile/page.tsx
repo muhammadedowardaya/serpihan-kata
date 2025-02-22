@@ -158,7 +158,7 @@ const ProfilePage = () => {
 								<div
 									className={`absolute w-full h-full ${
 										getUser.data?.image
-											? 'bg-gradient-to-b from-black/60 via-transparent to-black/30'
+											? 'bg-linear-to-b from-black/60 via-transparent to-black/30'
 											: 'bg-white'
 									}  z-10`}
 								></div>
