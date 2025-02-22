@@ -7,9 +7,19 @@ declare module 'next-auth' {
 	 */
 	interface User {
 		id: string;
-		username: string;
-		role: 'ADMIN' | 'USER';
+		name: string;
+		username?: string;
+		email?: string;
+		image?: string;
+		bio?: string;
+		role: 'USER' | 'ADMIN';
+		posts: Post[];
+		comments: Comment[];
+		likes: Like;
+		socialMediaId?: string;
+		socialMedia?: SocialMedia;
 	}
+
 	/**
 	 * The shape of the account object returned in the OAuth providers' `account` callback,
 	 * Usually contains information about the provider being used, like OAuth tokens (`access_token`, etc).
@@ -20,10 +30,7 @@ declare module 'next-auth' {
 	 * Returned by `useSession`, `auth`, contains information about the active session.
 	 */
 	interface Session {
-		user: {
-			id: string;
-			role: 'ADMIN' | 'USER';
-		} & DefaultSession['user'];
+		user: User & DefaultSession['user'];
 	}
 }
 
@@ -33,11 +40,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
 	/** Returned by the `jwt` callback and `auth`, when using JWT sessions */
 	interface JWT {
-		/** OpenID ID Token */
-		user: {
-			id?: string;
-			role?: 'ADMIN' | 'USER';
-		};
+		user: User;
 	}
 }
 
@@ -49,19 +52,6 @@ interface Like {
 	post?: Post;
 	commentId?: string;
 	comment?: Comment;
-}
-
-interface User {
-	id: string;
-	name: string;
-	username?: string;
-	email?: string;
-	image?: string;
-	bio?: string;
-	role: 'USER' | 'ADMIN';
-	posts: Post[];
-	comments: Comment[];
-	likes: Like;
 }
 
 interface SocialMedia {
@@ -85,15 +75,14 @@ interface Post {
 	thumbnailPreview: string;
 	createdAt: Date;
 	views?: number;
-	categoryId: string;
-	category: Category;
+	likes: Like[];
+	postTag: PostTag[];
 	comments?: Comment[];
 	userId: string;
 	user: User;
 }
 
 interface PostAtom {
-	id: string;
 	slug: string;
 	title: string;
 	description: string;
@@ -101,8 +90,8 @@ interface PostAtom {
 	thumbnail: File | null | string;
 	thumbnailFileName: string;
 	thumbnailPreview: string;
-	categoryId: string;
 	userId: string;
+	tags: Tag[];
 }
 
 interface SavedPost {
@@ -113,10 +102,17 @@ interface SavedPost {
 	user: User;
 }
 
-interface Category {
+interface Tag {
 	id: string;
 	label: string;
 	value: string;
+}
+
+interface PostTag {
+	postId: string;
+	tagId: string;
+	post: Post;
+	tag: Tag;
 }
 
 interface Comment {
@@ -124,6 +120,7 @@ interface Comment {
 	message: string;
 	likes: Like[];
 	user: User;
+	postId?: string;
 	post: Post;
 	parentId?: string;
 	parent?: Comment;
@@ -133,4 +130,21 @@ interface Comment {
 	specificReplies?: Comment[];
 	createdAt: Date;
 	updatedAt: Date;
+}
+
+interface TargetUser {
+	id: string;
+	username: string;
+	image: string;
+}
+
+interface AlertPostComment {
+	title: string;
+	description?: React.ReactNode;
+	type: 'error' | 'success' | 'warning' | 'info';
+	textConfirmButton?: string;
+	textCancelButton?: string;
+	onConfirm?: () => void;
+	onCancel?: () => void;
+	isLoadingConfirm?: boolean;
 }

@@ -16,7 +16,11 @@ const SavedPostsPage = async () => {
 			post: {
 				include: {
 					user: true,
-					category: true,
+					postTag: {
+                        include: {
+                            tag:true
+                        }
+                    },
 				},
 			},
 		},

@@ -11,19 +11,25 @@ export const GET = async () => {
 			},
 			include: {
 				user: true,
-				category: true,
+				postTag: {
+					include: {
+						tag: true,
+					},
+				},
 			},
 		});
 
-		return NextResponse.json({ posts, status: 200 });
+		return NextResponse.json({ posts }, { status: 200 });
 	} catch (error) {
 		if (error instanceof Error) {
 			console.info(error.message);
 		}
 
-		return NextResponse.json({
-			error: error,
-			status: 500,
-		});
+		return NextResponse.json(
+			{
+				error: error,
+			},
+			{ status: 500 }
+		);
 	}
 };

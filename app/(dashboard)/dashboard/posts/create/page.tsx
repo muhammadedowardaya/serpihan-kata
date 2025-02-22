@@ -38,7 +38,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import { Toast } from '@/lib/sweetalert';
@@ -51,6 +51,7 @@ import {
 } from '@/jotai';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { Tag } from '@/types';
 
 const CreateNewPostPage = () => {
 	const router = useRouter();
@@ -61,6 +62,8 @@ const CreateNewPostPage = () => {
 	const setPostData = useSetAtom(postDataAtom);
 
 	const [previewThumbnail, setPreviewThumbnail] = useState('');
+
+        const [showTagsPopover, setShowTagsPopover] = useState(false);
 
 	useEffect(() => {
 		if (postId.state === 'hasData') {
@@ -76,7 +79,7 @@ const CreateNewPostPage = () => {
 			title: '',
 			description: '',
 			content: '',
-			categoryId: '',
+			tags: [],
 		},
 	});
 
@@ -86,16 +89,15 @@ const CreateNewPostPage = () => {
 		onSuccess: () => {
 			setPostId('');
 			setPostData({
-				id: '',
-                slug: '',
+				slug: '',
 				title: '',
 				description: '',
 				content: '',
 				thumbnail: null,
 				thumbnailPreview: '',
 				thumbnailFileName: '',
-				categoryId: '',
 				userId: '',
+				tags: [],
 			});
 			Toast.fire('Post created successfully', '', 'success');
 			router.push('/dashboard/posts');
@@ -105,13 +107,52 @@ const CreateNewPostPage = () => {
 		},
 	});
 
-	const categories = useQuery({
-		queryKey: ['categories'],
+	const tags = useQuery({
+		queryKey: ['tags'],
 		queryFn: async () => {
-			const response = await axios.get('/api/category');
-			return response.data.categories;
+			const response = await axios.get('/api/tags');
+			return response.data.tags;
 		},
 	});
+
+	const handleAddNewTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		const target = e.target as HTMLInputElement;
+		const label = target.value.trim();
+		if (!label) return;
+
+		const newTag: Tag = {
+			id: crypto.randomUUID(),
+			label,
+			value: label.toLowerCase().replace(/\s+/g, '-'),
+		};
+
+		const currentTags: Tag[] = form.getValues('tags') || [];
+
+		if (!currentTags.some((tag) => tag.value === newTag.value)) {
+			const updatedTags = [...currentTags, newTag];
+
+			form.setValue('tags', updatedTags, { shouldValidate: true });
+
+			setPostData((prev) => ({
+				...prev,
+				tags: updatedTags,
+			}));
+		}
+
+		setShowTagsPopover(false);
+	};
+
+	const handleRemoveTag = (tag: Tag) => {
+		const newTags =
+			form.getValues('tags')?.filter((t) => t.id !== tag.id) || [];
+
+		form.setValue('tags', newTags, { shouldValidate: true });
+
+		setPostData((prev) => ({
+			...prev,
+			tags: newTags,
+		}));
+	};
 
 	const handleOnFieldChange = (name: string, value: string) => {
 		setPostData((prev) => ({
@@ -135,7 +176,7 @@ const CreateNewPostPage = () => {
 				form.setValue('title', postData.data.title ?? '');
 				form.setValue('description', postData.data.description ?? '');
 				form.setValue('content', postData.data.content ?? '');
-				form.setValue('categoryId', postData.data.categoryId ?? '');
+				form.setValue('tags', postData.data.tags ?? []);
 				setPreviewThumbnail(postData.data.thumbnailPreview ?? '');
 
 				if (
@@ -210,7 +251,8 @@ const CreateNewPostPage = () => {
 			}
 		}
 
-		formData.append('categoryId', data.categoryId);
+		const tags = form.getValues('tags'); // Ambil tags dari form
+		formData.append('tags', JSON.stringify(tags)); // Ubah ke JSON Stringify sebelum dikirim
 
 		if (postId.state === 'hasData') {
 			mutation.mutate({
@@ -291,96 +333,138 @@ const CreateNewPostPage = () => {
 							</FormItem>
 						)}
 					/>
+
 					<FormField
 						control={form.control}
-						name="categoryId"
+						name="tags"
 						render={({ field }) => (
-							<FormItem className="flex flex-col">
-								<FormLabel>Category</FormLabel>
-								{categories.isPending ? (
+							<FormItem className="flex flex-col gap-2">
+								<FormLabel>Tags</FormLabel>
+								{tags.isPending ? (
 									<div>Loading...</div>
-								) : categories.isError ? (
-									<div>No category found</div>
+								) : tags.isError ? (
+									<div>No tags found</div>
 								) : (
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant="outline"
-													role="combobox"
-													className={cn(
-														'w-[200px] justify-between',
-														!field.value && 'text-muted-foreground'
-													)}
-												>
-													{field.value
-														? categories.data.find(
-																(category: { label: string; id: string }) =>
-																	category.id === field.value
-														  )?.label
-														: 'Select category'}
-													<ChevronsUpDown className="opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-[200px] p-0">
-											<Command>
-												<CommandInput
-													placeholder="Search category..."
-													className="h-9"
-												/>
-												<CommandList>
-													<CommandEmpty>No category found.</CommandEmpty>
-													<CommandGroup>
-														{categories.data.map(
-															(category: {
-																id: string;
-																label: string;
-																value: string;
-															}) => (
-																<CommandItem
-																	value={category.id}
-																	key={category.id}
-																	onSelect={() => {
-																		form.setValue('categoryId', category.id);
-																		handleOnFieldChange(
-																			'categoryId',
-																			category.id
-																		);
-																	}}
-																>
-																	{category.label}
-																	<Check
-																		className={cn(
-																			'ml-auto',
-																			category.id === field.value
-																				? 'opacity-100'
-																				: 'opacity-0'
-																		)}
-																	/>
-																</CommandItem>
-															)
-														)}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
+									<>
+										{field.value.length > 0 && (
+											<div className="flex flex-wrap gap-2">
+												{field.value.map((tag) => (
+													<div
+														key={tag.id}
+														className="select-none flex items-center gap-2 text-sm lowercase bg-white border border-slate-300 text-slate-900 w-max pl-3 pr-1 py-[2px] rounded-full"
+													>
+														<span>{tag.label}</span>
+														<Button
+															variant="ghost"
+															onClick={() => handleRemoveTag(tag)}
+															className="flex items-center justify-center text-destructive hover:bg-destructive hover:text-white rounded-full p-1 h-max"
+														>
+															<X size={20} />
+														</Button>
+													</div>
+												))}
+											</div>
+										)}
+										{field.value.length < 5 && (
+											<Popover
+												open={showTagsPopover}
+												onOpenChange={setShowTagsPopover}
+											>
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															role="combobox"
+															className={cn(
+																'w-[300px] justify-between',
+																!field.value?.length && 'text-muted-foreground'
+															)}
+														>
+															Select or add tag
+															<ChevronsUpDown className="opacity-50" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-[300px] max-w-[400px] p-0">
+													<Command>
+														<CommandInput
+															placeholder="Search or add a tag..."
+															className="h-9"
+															onKeyDown={(e) => {
+																if (e.key === 'Enter') {
+																	e.preventDefault();
+																	if (e.currentTarget.value.trim() !== '') {
+																		handleAddNewTag(e);
+																	}
+																}
+															}}
+														/>
+														<CommandList>
+															<CommandEmpty>
+																No tags found. Press Enter to add.
+															</CommandEmpty>
+															<CommandGroup>
+																{tags.data.map((tag: Tag) => (
+																	<CommandItem
+																		value={tag.value}
+																		key={tag.id}
+																		onSelect={() => {
+																			const isSelected = field.value.some(
+																				(t: Tag) => t.id === tag.id
+																			);
+
+																			const newTags = isSelected
+																				? field.value.filter(
+																						(t: Tag) => t.id !== tag.id
+																				  )
+																				: [...field.value, tag];
+
+																			setPostData((prev) => ({
+																				...prev,
+																				tags: newTags,
+																			}));
+
+																			field.onChange(newTags);
+																		}}
+																	>
+																		{tag.label}
+																		<Check
+																			className={cn(
+																				'ml-auto',
+																				field.value.some(
+																					(t: Tag) => t.id === tag.id
+																				)
+																					? 'opacity-100'
+																					: 'opacity-0'
+																			)}
+																		/>
+																	</CommandItem>
+																))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										)}
+									</>
 								)}
 								<FormDescription>
-									This is the language that will be used in the dashboard.
+									{field.value && field.value.length < 5
+										? 'Select or add tags (max 5).'
+										: "You've reached the limit. Remove a tag to add another."}
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
+
 					<FormField
 						control={form.control}
 						name="thumbnail"
 						render={() => (
 							<FormItem>
 								<FormLabel>Thumbnail</FormLabel>
-								{previewThumbnail ? ( 
+								{previewThumbnail ? (
 									<>
 										<Image
 											src={previewThumbnail}

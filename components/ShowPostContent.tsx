@@ -8,6 +8,8 @@ import { useEffect, useRef } from 'react';
 import '@/lib/CustomTab.js';
 import '@/styles/show-post-content.scss';
 
+import DOMPurify from 'dompurify';
+
 const ShowPostContent = ({ data }: { data: Post }) => {
 	const editorRef = useRef<Quill | null>(null);
 	const editorContainer = useRef<HTMLDivElement | null>(null);
@@ -24,12 +26,15 @@ const ShowPostContent = ({ data }: { data: Post }) => {
 			});
 
 			editorRef.current = quill;
-			quill.root.innerHTML = data.content;
+			quill.root.innerHTML = DOMPurify.sanitize(data.content);
 
 			// Highlight code blocks
 			document.querySelectorAll('.ql-code-block').forEach((block) => {
 				if (block) {
-					hljs.highlightElement(block as HTMLElement);
+					const codeElement = block as HTMLElement;
+					const codeText = codeElement.textContent || '';
+					codeElement.textContent = codeText; // Pastikan hanya teks yang diproses
+					hljs.highlightElement(codeElement);
 				}
 			});
 

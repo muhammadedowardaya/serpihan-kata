@@ -57,6 +57,20 @@ export const GET = async (
 			where: {
 				id,
 			},
+			include: {
+				postTag: {
+					include: {
+						tag: true,
+					},
+				},
+				likes: true,
+				user: true,
+				comments: {
+					orderBy: {
+						createdAt: 'desc',
+					},
+				},
+			},
 		});
 
 		return NextResponse.json({
@@ -85,8 +99,13 @@ export const PUT = async (
 	const title = formData.get('title') as string;
 	const description = formData.get('description') as string;
 	const content = formData.get('content') as string;
+	const oldThumbnail = formData.get('oldThumbnail') as string;
 	const thumbnail = formData.get('thumbnail');
-	const categoryId = formData.get('categoryId') as string;
+	const tags = JSON.parse(formData.get('tags') as string) as {
+		label: string;
+		value: string;
+	}[];
+
 	const userId = session?.user?.id;
 
 	try {
@@ -119,15 +138,23 @@ export const PUT = async (
 		if (typeof thumbnail === 'object') {
 			const thumbnailImage = await saveImage(thumbnail as File, id);
 			if (thumbnailImage.success) {
+				const oldThumbnailPath = path.join(
+					process.cwd(),
+					`public/${oldThumbnail}`
+				);
+
+				if (fs.existsSync(oldThumbnailPath)) {
+					fs.unlinkSync(oldThumbnailPath);
+				}
+
 				thumbnailUrl = thumbnailImage.url as string;
-				// console.info('image sucess, ini jenis thumbnail :', typeof thumbnail);
-				// console.info('image sucess, ini urlnya :', thumbnailUrl);
+				console.info('thumbnail berhasil disimpan', thumbnailUrl);
 			} else {
 				console.info('image gagal, periksa saveImage pada thumbnailImage');
 			}
 		} else if (typeof thumbnail === 'string') {
 			thumbnailUrl = thumbnail;
-			// console.info('thumbnail tidak berubah')
+			console.info('thumbnail tidak berubah');
 		}
 
 		// console.info('update postingan')
@@ -143,8 +170,17 @@ export const PUT = async (
 				description,
 				content,
 				thumbnail: thumbnailUrl,
-				categoryId,
 				userId,
+				postTag: {
+					create: tags.map((tag) => ({
+						tag: {
+							connectOrCreate: {
+								where: { value: tag.value },
+								create: { label: tag.label, value: tag.value },
+							},
+						},
+					})),
+				},
 			},
 		});
 
@@ -159,6 +195,42 @@ export const PUT = async (
 				error: error instanceof Error ? error.message : 'Unknown error',
 			},
 			{ status: 500 }
+		);
+	}
+};
+
+export const DELETE = async (
+	request: NextRequest,
+	{
+		params,
+	}: {
+		params: Promise<{ id: string }>;
+	}
+) => {
+	try {
+		const id = (await params).id;
+		await prisma.post.delete({
+			where: {
+				id,
+			},
+		});
+		return NextResponse.json(
+			{
+				success: true,
+			},
+			{
+				status: 200,
+			}
+		);
+	} catch (error) {
+		return NextResponse.json(
+			{
+				error,
+				success: false,
+			},
+			{
+				status: 500,
+			}
 		);
 	}
 };

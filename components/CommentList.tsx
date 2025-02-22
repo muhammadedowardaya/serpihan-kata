@@ -1,8 +1,11 @@
+'use client';
+
 import { Comment } from '@/types';
-import React from 'react';
+import React, { useEffect } from 'react';
 import CommentItem from './CommentItem';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
 
 export const CommentList = ({
 	comments,
@@ -21,8 +24,22 @@ export const CommentList = ({
 		enabled: !!postId,
 	});
 
+	const searchParams = useSearchParams();
+	const commentId = searchParams.get('comment');
+
+	useEffect(() => {
+		if (commentId) {
+			const element = document.getElementById(commentId);
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth' });
+			}
+			console.info({ commentId });
+			console.info({ element });
+		}
+	}, [commentId, getComments.data]);
+
 	return (
-		<div className="flex flex-col gap-y-4 pb-[20px]">
+		<div className="flex flex-col gap-y-4 pb-[20px] relative">
 			{getComments.data && getComments.data?.length > 0 ? (
 				getComments.data?.map((comment) => {
 					return <CommentItem key={comment.id} comment={comment} />;

@@ -1,4 +1,3 @@
-import Alert from '@/components/Alert';
 import { AppSidebar } from '@/components/AppSidebar';
 import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
 import ModalProgress from '@/components/ModalProgress';
@@ -24,7 +23,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								</section>
 							</main>
 						</div>
-						<Alert />
 						<ModalProgress />
 					</SidebarProvider>
 				</QueryProvider>

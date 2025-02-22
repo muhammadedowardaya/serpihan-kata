@@ -29,6 +29,47 @@ model account {
     @@index([userId], map: "Account_userId_idx")
 }
 
+model user {
+    id            String         @id @default(cuid())
+    name          String?
+    username      String?        @unique(map: "User_username_key")
+    email         String?        @unique(map: "User_email_key")
+    emailVerified DateTime?
+    password      String?
+    image         String?
+    bio           String?
+    role          UserRole       @default(USER)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    account       account?
+    posts         post[]
+    comments      comment[]
+    session       session[]
+    likes         like[]
+    savedPosts    savedPost[]
+    socialMediaId String?        @unique
+    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id])
+    notifications notification[] @relation("UserNotification") // Notifikasi yang diterima
+    actions       notification[] @relation("ActorNotification") // Notifikasi yang dipicu oleh user
+}
+
+model tag {
+    id       String    @id @default(cuid())
+    label    String // Supaya tidak ada tag duplikat
+    value    String    @unique // Supaya tidak ada tag duplikat
+    postTags postTag[]
+}
+
+model postTag {
+    postId String
+    tagId  String
+
+    post post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    tag  tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@id([postId, tagId])
+}
+
 model notification {
     id        String           @id @default(cuid())
     userId    String // User yang akan menerima notifikasi
@@ -40,15 +81,10 @@ model notification {
     post      post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
     commentId String? // Comment yang terkait (jika aksi dilakukan pada komentar)
     comment   comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    likeId    String?
+    like      like?            @relation(fields: [likeId], references: [id], onDelete: Cascade)
     isRead    Boolean          @default(false) // Status apakah notifikasi sudah dibaca
     createdAt DateTime         @default(now())
-}
-
-enum NotificationType {
-    LIKE_POST
-    LIKE_COMMENT
-    COMMENT_POST
-    REPLY_COMMENT
 }
 
 model like {
@@ -60,10 +96,18 @@ model like {
     commentId String? // Komentar yang diberi like (opsional jika ini adalah like postingan)
     comment   comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
+    createdAt     DateTime       @default(now())
+    notifications notification[]
 
     @@unique([userId, postId], map: "UniquePostLike") // Hindari user memberi like yang sama untuk satu postingan
     @@unique([userId, commentId], map: "UniqueCommentLike") // Hindari user memberi like yang sama untuk satu komentar
+}
+
+enum NotificationType {
+    LIKE_POST
+    LIKE_COMMENT
+    COMMENT_POST
+    REPLY_COMMENT
 }
 
 model comment {
@@ -85,6 +129,8 @@ model comment {
     specificReplies comment[]      @relation("SpecificReply")
     notifications   notification[]
 
+    isPinned Boolean @default(false) // Tambahkan field ini untuk menyematkan komentar
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -103,42 +149,17 @@ model post {
     comments      comment[]
     likes         like[]
     savedPost     savedPost[]
-    categoryId    String?
-    category      category?      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     notifications notification[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    postTag   postTag[]
 
     @@index([userId], map: "Post_userId_idx")
-    @@index([categoryId], map: "Post_categoryId_idx")
-}
-
-model user {
-    id            String         @id @default(cuid())
-    name          String?
-    username      String?        @unique(map: "User_username_key")
-    email         String?        @unique(map: "User_email_key")
-    emailVerified DateTime?
-    image         String?
-    bio           String?
-    role          UserRole       @default(USER)
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    account       account?
-    posts         post[]
-    comments      comment[]
-    session       session[]
-    likes         like[]
-    savedPosts    savedPost[]
-    socialMediaId String?        @unique
-    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id])
-    notifications notification[] @relation("UserNotification") // Notifikasi yang diterima
-    actions       notification[] @relation("ActorNotification") // Notifikasi yang dipicu oleh user
 }
 
 model socialMedia {
-    id        String  @id @default(cuid())
+    id        String  @id
     instagram String?
     tiktok    String?
     facebook  String?
@@ -164,13 +185,6 @@ model savedPost {
 enum UserRole {
     ADMIN
     USER
-}
-
-model category {
-    id    String @id @default(cuid())
-    label String
-    value String
-    posts post[]
 }
 
 model image {

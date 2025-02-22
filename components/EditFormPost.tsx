@@ -30,22 +30,22 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, LoaderCircle } from 'lucide-react';
+import { Check, ChevronsUpDown, LoaderCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import { Toast } from '@/lib/sweetalert';
 import { useAtom, useSetAtom } from 'jotai';
 import {
+	editPostIdAtom,
 	loadablePostData,
 	loadablePostId,
 	postDataAtom,
 	postIdAtom,
 } from '@/jotai';
-import { useRouter } from 'next/navigation';
-import { Post } from '@/types';
+import { Post, Tag } from '@/types';
 import dynamic from 'next/dynamic';
 import { Button } from './ui/button';
 
@@ -54,33 +54,41 @@ const QuillEditor = dynamic(() => import('@/components/QuillEditor'), {
 });
 
 const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
-	const router = useRouter();
+	const initialEditPost = useRef(false);
 
+	const queryClient = useQueryClient();
+
+	const [editPostId, setEditPostId] = useAtom(editPostIdAtom);
 	const [postId] = useAtom(loadablePostId);
 	const setPostId = useSetAtom(postIdAtom);
 	const [postData] = useAtom(loadablePostData);
 	const setPostData = useSetAtom(postDataAtom);
+
+	const [showTagsPopover, setShowTagsPopover] = useState(false);
 
 	const [previewThumbnail, setPreviewThumbnail] = useState('');
 
 	const form = useForm<z.infer<typeof postSchema>>({
 		resolver: zodResolver(postSchema),
 		defaultValues: {
-			title: defaultValues.title,
-			description: defaultValues.description,
-			content: defaultValues.content,
-			categoryId: defaultValues.categoryId,
+			title: '',
+			description: '',
+			content: '',
+			tags: [],
 		},
 	});
 
 	const mutation = useMutation<unknown, Error, { id: string; data: FormData }>({
 		mutationFn: async ({ id, data }) =>
-			await axios.put(`/api/post/${id}`, data).then((res) => res.data),
+			await axios.put(`/api/post/${id}/update`, data).then((res) => res.data),
 		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['my-posts'],
+			});
+
 			setPostId('');
 
 			setPostData({
-				id: '',
 				slug: '',
 				title: '',
 				description: '',
@@ -88,26 +96,69 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 				thumbnail: null,
 				thumbnailPreview: '',
 				thumbnailFileName: '',
-				categoryId: '',
+				tags: [],
 				userId: '',
 			});
 
 			Toast.fire('Post updated successfully', '', 'success');
 
-			router.push('/dashboard/posts');
+			setEditPostId('');
 		},
 		onError: (error) => {
-			Swal.fire('Error', error.message, 'error');
+			if (error instanceof AxiosError) {
+				console.info(error.response?.data.message);
+				Swal.fire('Error', error.response?.data.message, 'error');
+			} else {
+				Swal.fire('Error', error.message, 'error');
+			}
+		},
+	});
+	const tags = useQuery<unknown, Error, Tag[]>({
+		queryKey: ['tags'],
+		queryFn: async () => {
+			const response = await axios.get('/api/tags');
+			return response.data.tags;
 		},
 	});
 
-	const categories = useQuery({
-		queryKey: ['categories'],
-		queryFn: async () => {
-			const response = await axios.get('/api/category');
-			return response.data.categories;
-		},
-	});
+	const handleAddNewTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		const target = e.target as HTMLInputElement;
+		const label = target.value.trim();
+		if (!label) return;
+
+		const newTag: Tag = {
+			id: crypto.randomUUID(),
+			label,
+			value: label.toLowerCase().replace(/\s+/g, '-'),
+		};
+
+		const currentTags: Tag[] = form.getValues('tags') || [];
+
+		if (!currentTags.some((tag) => tag.value === newTag.value)) {
+			const updatedTags = [...currentTags, newTag];
+
+			form.setValue('tags', updatedTags, { shouldValidate: true });
+
+			setPostData((prev) => ({
+				...prev,
+				tags: updatedTags,
+			}));
+		}
+
+		setShowTagsPopover(false);
+	};
+
+	const handleRemoveTag = (tag: Tag) => {
+		const newTags =
+			form.getValues('tags')?.filter((t) => t.id !== tag.id) || [];
+
+		form.setValue('tags', newTags, { shouldValidate: true });
+
+		setPostData((prev) => ({
+			...prev,
+			tags: newTags,
+		}));
+	};
 
 	const handleOnFieldChange = (name: string, value: string) => {
 		setPostData((prev) => ({
@@ -128,6 +179,20 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 	useEffect(() => {
 		const restoreFileOnce = async () => {
 			if (postData.state === 'hasData') {
+				setPostId(defaultValues.id);
+				setPostData((prev) => ({
+					...prev,
+					thumbnailPreview: defaultValues.thumbnail as string,
+					tags: defaultValues.postTag
+						? defaultValues.postTag.map(({ tag }) => tag)
+						: [],
+					content: defaultValues.content,
+				}));
+
+				setPreviewThumbnail(
+					postData.data.thumbnailPreview || (defaultValues.thumbnail as string)
+				);
+
 				form.setValue(
 					'title',
 					postData.data.title ? postData.data.title : defaultValues.title
@@ -142,18 +207,17 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 					'content',
 					postData.data.content ? postData.data.content : defaultValues.content
 				);
+
 				form.setValue(
-					'categoryId',
-					postData.data.categoryId
-						? postData.data.categoryId
-						: defaultValues.categoryId
+					'tags',
+					postData.data.tags
+						? postData.data.tags
+						: defaultValues.postTag
+						? defaultValues.postTag.map(({ tag }) => tag)
+						: []
 				);
 
-				setPreviewThumbnail(
-					postData.data.thumbnailPreview
-						? postData.data.thumbnailPreview
-						: (defaultValues.thumbnail as string)
-				);
+				console.info(defaultValues.postTag);
 
 				if (!defaultValues.thumbnail) {
 					if (
@@ -167,6 +231,7 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 							postData.data.thumbnailFileName
 						);
 						form.setValue('thumbnail', file ?? null);
+
 						setPostData((prev) => ({
 							...prev,
 							thumbnail: file,
@@ -178,27 +243,17 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 			}
 		};
 
-		if (postId.state === 'hasData') {
-			if (postId.data !== defaultValues.id) {
-				setPostId(defaultValues.id);
+		if (postId.state === 'hasData' && !initialEditPost.current) {
+			restoreFileOnce();
 
-				setPostData({
-					id: '',
-					slug: '',
-					title: '',
-					description: '',
-					content: '',
-					thumbnail: null,
-					thumbnailPreview: '',
-					thumbnailFileName: '',
-					categoryId: '',
-					userId: '',
-				});
-			} else {
-				restoreFileOnce();
+			if (postData.state === 'hasData') {
+				if (postData.data.content && defaultValues.content) {
+					initialEditPost.current = true;
+				}
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/exhaustive-deps
 	}, [postData, defaultValues]);
 
 	// Tambahkan useRef untuk melacak apakah restorasi sudah dilakukan
@@ -223,6 +278,8 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 					thumbnailFileName: file.name,
 					thumbnailPreview: base64string,
 				}));
+
+				setPreviewThumbnail(base64string);
 			};
 
 			reader.readAsDataURL(file);
@@ -250,8 +307,10 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 			}
 		}
 
-		formData.append('categoryId', data.categoryId);
-
+		const tags = form.getValues('tags'); // Ambil tags dari form
+		formData.append('tags', JSON.stringify(tags)); // Ubah ke JSON Stringify sebelum dikirim
+		// console.info('tags JSON.stringify', JSON.stringify(tags));
+		// console.info('tags', tags);
 		if (postId.state === 'hasData') {
 			mutation.mutate({
 				id: postId.data,
@@ -323,7 +382,7 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 								<FormLabel>Content</FormLabel>
 								<FormControl>
 									<QuillEditor
-										postId={defaultValues.id}
+										postId={editPostId || defaultValues.id}
 										field={field}
 										onContentChange={(value) => {
 											handleOnFieldChange('content', value);
@@ -335,89 +394,131 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 							</FormItem>
 						)}
 					/>
+
 					<FormField
 						control={form.control}
-						name="categoryId"
+						name="tags"
 						render={({ field }) => (
-							<FormItem className="flex flex-col">
-								<FormLabel>Category</FormLabel>
-								{categories.isPending ? (
+							<FormItem className="flex flex-col gap-2">
+								<FormLabel>Tags</FormLabel>
+								{tags.isPending ? (
 									<div>Loading...</div>
-								) : categories.isError ? (
-									<div>No category found</div>
+								) : tags.isError ? (
+									<div>No tags found</div>
 								) : (
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant="outline"
-													role="combobox"
-													className={cn(
-														'w-[200px] justify-between',
-														!field.value && 'text-muted-foreground'
-													)}
-												>
-													{field.value
-														? categories.data.find(
-																(category: { label: string; id: string }) =>
-																	category.id === field.value
-														  )?.label
-														: 'Select category'}
-													<ChevronsUpDown className="opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-[200px] p-0">
-											<Command>
-												<CommandInput
-													placeholder="Search category..."
-													className="h-9"
-												/>
-												<CommandList>
-													<CommandEmpty>No category found.</CommandEmpty>
-													<CommandGroup>
-														{categories.data.map(
-															(category: {
-																id: string;
-																label: string;
-																value: string;
-															}) => (
-																<CommandItem
-																	value={category.id}
-																	key={category.id}
-																	onSelect={() => {
-																		form.setValue('categoryId', category.id);
-																		handleOnFieldChange(
-																			'categoryId',
-																			category.id
-																		);
-																	}}
-																>
-																	{category.label}
-																	<Check
-																		className={cn(
-																			'ml-auto',
-																			category.id === field.value
-																				? 'opacity-100'
-																				: 'opacity-0'
-																		)}
-																	/>
-																</CommandItem>
-															)
-														)}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
+									<>
+										{field.value && field.value.length > 0 && (
+											<div className="flex flex-wrap gap-2">
+												{field.value.map((tag) => (
+													<div
+														key={tag.id}
+														className="select-none flex items-center gap-2 text-sm lowercase bg-white border border-slate-300 text-slate-900 w-max pl-3 pr-1 py-[2px] rounded-full"
+													>
+														<span>{tag.label}</span>
+														<Button
+															variant="ghost"
+															onClick={() => handleRemoveTag(tag)}
+															className="flex items-center justify-center text-destructive hover:bg-destructive hover:text-white rounded-full p-1 h-max"
+														>
+															<X size={20} />
+														</Button>
+													</div>
+												))}
+											</div>
+										)}
+										{field.value.length < 5 && (
+											<Popover
+												open={showTagsPopover}
+												onOpenChange={setShowTagsPopover}
+											>
+												<PopoverTrigger asChild>
+													<FormControl>
+														<Button
+															variant="outline"
+															role="combobox"
+															className={cn(
+																'w-[300px] justify-between',
+																!field.value?.length && 'text-muted-foreground'
+															)}
+														>
+															Select or add tag
+															<ChevronsUpDown className="opacity-50" />
+														</Button>
+													</FormControl>
+												</PopoverTrigger>
+												<PopoverContent className="w-[300px] max-w-[400px] p-0">
+													<Command>
+														<CommandInput
+															placeholder="Search or add a tag..."
+															className="h-9"
+															onKeyDown={(e) => {
+																if (e.key === 'Enter') {
+																	e.preventDefault();
+																	if (e.currentTarget.value.trim() !== '') {
+																		handleAddNewTag(e);
+																	}
+																}
+															}}
+														/>
+														<CommandList>
+															<CommandEmpty>
+																No tags found. Press Enter to add.
+															</CommandEmpty>
+															<CommandGroup>
+																{tags.data.map((tag: Tag) => (
+																	<CommandItem
+																		value={tag.value}
+																		key={tag.id}
+																		onSelect={() => {
+																			const isSelected = field.value.some(
+																				(t: Tag) => t.id === tag.id
+																			);
+
+																			const newTags = isSelected
+																				? field.value.filter(
+																						(t: Tag) => t.id !== tag.id
+																				  )
+																				: [...field.value, tag];
+
+																			setPostData((prev) => ({
+																				...prev,
+																				tags: newTags,
+																			}));
+
+																			field.onChange(newTags);
+																		}}
+																	>
+																		{tag.label}
+																		<Check
+																			className={cn(
+																				'ml-auto',
+																				field.value.some(
+																					(t: Tag) => t.id === tag.id
+																				)
+																					? 'opacity-100'
+																					: 'opacity-0'
+																			)}
+																		/>
+																	</CommandItem>
+																))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										)}
+									</>
 								)}
 								<FormDescription>
-									This is the language that will be used in the dashboard.
+									{field.value && field.value.length < 5
+										? 'Select or add tags (max 5).'
+										: "You've reached the limit. Remove a tag to add another."}
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
+
 					<FormField
 						control={form.control}
 						name="thumbnail"
@@ -427,7 +528,7 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 								{previewThumbnail ? (
 									<>
 										<Image
-											src={previewThumbnail}
+											src={previewThumbnail as string}
 											width={200}
 											height={200}
 											alt="thumbnail"
@@ -461,6 +562,7 @@ const EditFormPost = ({ defaultValues }: { defaultValues: Post }) => {
 							</FormItem>
 						)}
 					/>
+
 					<div className="flex items-center gap-4">
 						<Button type="submit" disabled={mutation.isPending}>
 							{mutation.isPending ? (

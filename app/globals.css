@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Quicksand:wght@300..700&family=Satisfy&display=swap');
 
-@import 'tailwindcss/base';
+@import 'tailwindcss';
 @import '@radix-ui/themes/styles.css';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
 
 @import 'highlight.js/styles/stackoverflow-dark.min.css';
 /* @import 'highlight.js/styles/hybrid.min.css'; */
@@ -14,65 +12,61 @@
 @import 'quill/dist/quill.core.css';
 @import 'quill/dist/quill.snow.css';
 
-@layer utilities {
-	.edit-button {
-		@apply bg-orange-500 text-white hover:text-orange-500 hover:!bg-white hover:border-orange-500;
-	}
+@theme {
+	--color-primary: oklch(97.2% 0.005 100.9);
+	--color-primary-foreground: oklch(22.9% 0.01 270);
+	--color-secondary: oklch(22.9% 0.01 270);
+	--color-secondary-text: oklch(49.7% 0.01 270);
+	--color-secondary-foreground: oklch(100% 0 0);
+	--color-highlight: oklch(76.1% 0.14 61.1);
+	--color-highlight-hover: oklch(68.5% 0.15 61.1);
+	--color-accent: oklch(35.6% 0.06 251.5);
+	--color-accent-hover: oklch(27.1% 0.07 251.5);
+	--color-accent-foreground: oklch(100% 0 0);
+	--color-success: oklch(59.3% 0.2 177.8);
+	--color-warning: oklch(83.7% 0.17 95.1);
+	--color-error: oklch(60.5% 0.25 31.2);
 }
 
-@layer base {
-	:root {
-		--background: 0 0% 100%;
-		--foreground: 222.2 84% 4.9%;
-		--card: 0 0% 100%;
-		--card-foreground: 222.2 84% 4.9%;
-		--popover: 0 0% 100%;
-		--popover-foreground: 222.2 84% 4.9%;
-		--primary: 222.2 47.4% 11.2%;
-		--primary-foreground: 210 40% 98%;
-		--secondary: 210 40% 96.1%;
-		--secondary-foreground: 222.2 47.4% 11.2%;
-		--muted: 210 40% 96.1%;
-		--muted-foreground: 215.4 16.3% 46.9%;
-		--accent: 210 40% 96.1%;
-		--accent-foreground: 222.2 47.4% 11.2%;
-		--destructive: 0 84.2% 60.2%;
-		--destructive-foreground: 210 40% 98%;
-		--border: 214.3 31.8% 91.4%;
-		--input: 214.3 31.8% 91.4%;
-		--ring: 222.2 84% 4.9%;
-		--chart-1: 12 76% 61%;
-		--chart-2: 173 58% 39%;
-		--chart-3: 197 37% 24%;
-		--chart-4: 43 74% 66%;
-		--chart-5: 27 87% 67%;
-		--radius: 0.5rem;
+@utility {
+	.button-warning {
+		@apply bg-yellow-400 text-black hover:!bg-yellow-500;
 	}
-	.dark {
-		--background: 222.2 84% 4.9%;
-		--foreground: 210 40% 98%;
-		--card: 222.2 84% 4.9%;
-		--card-foreground: 210 40% 98%;
-		--popover: 222.2 84% 4.9%;
-		--popover-foreground: 210 40% 98%;
-		--primary: 210 40% 98%;
-		--primary-foreground: 222.2 47.4% 11.2%;
-		--secondary: 217.2 32.6% 17.5%;
-		--secondary-foreground: 210 40% 98%;
-		--muted: 217.2 32.6% 17.5%;
-		--muted-foreground: 215 20.2% 65.1%;
-		--accent: 217.2 32.6% 17.5%;
-		--accent-foreground: 210 40% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 210 40% 98%;
-		--border: 217.2 32.6% 17.5%;
-		--input: 217.2 32.6% 17.5%;
-		--ring: 212.7 26.8% 83.9%;
-		--chart-1: 220 70% 50%;
-		--chart-2: 160 60% 45%;
-		--chart-3: 30 80% 55%;
-		--chart-4: 280 65% 60%;
-		--chart-5: 340 75% 55%;
+
+	.button-error {
+		@apply bg-destructive text-white hover:!bg-red-600;
+	}
+
+	.button-success {
+		@apply bg-emerald-600 text-slate-100 hover:!bg-emerald-700;
+	}
+
+	.button-info {
+		@apply bg-blue-500 text-white hover:!bg-blue-600;
+	}
+
+	.navbar-item {
+		@apply flex items-center text-sm gap-3 p-2 rounded hover:bg-gray-200 text-slate-700 font-medium;
+	}
+
+	.navbar-item svg.lucide {
+		@apply w-5 h-5;
+	}
+
+	.padding-content {
+		@apply px-[30px] xxs:px-[30px] xs:px-[40px] sm:px-[60px] md:px-[50px];
+	}
+
+	.btn-primary {
+		@apply bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[var(--color-accent-hover)];
+	}
+
+	.btn-secondary {
+		@apply bg-[var(--color-highlight)] text-[var(--color-secondary)] hover:bg-[var(--color-highlight-hover)];
+	}
+
+	.btn-tertiary {
+		@apply bg-transparent text-[var(--color-secondary)] border border-[var(--color-secondary-text)] hover:bg-gray-300;
 	}
 }
 
@@ -81,35 +75,9 @@
 		@apply border-border;
 	}
 	body {
-		@apply bg-background text-foreground;
-		font-family: 'Quicksand', serif;
-        font-weight: 500;
+		@apply bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-inter font-normal text-xs sm:text-sm md:text-base lg:text-lg;
 	}
 }
-
-/* @layer base {
-	:root {
-		--sidebar-background: 0 0% 98%;
-		--sidebar-foreground: 240 5.3% 26.1%;
-		--sidebar-primary: 240 5.9% 10%;
-		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 240 4.8% 95.9%;
-		--sidebar-accent-foreground: 240 5.9% 10%;
-		--sidebar-border: 220 13% 91%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
-	}
-
-	.dark {
-		--sidebar-background: 240 5.9% 10%;
-		--sidebar-foreground: 240 4.8% 95.9%;
-		--sidebar-primary: 224.3 76.3% 48%;
-		--sidebar-primary-foreground: 0 0% 100%;
-		--sidebar-accent: 240 3.7% 15.9%;
-		--sidebar-accent-foreground: 240 4.8% 95.9%;
-		--sidebar-border: 240 3.7% 15.9%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
-	}
-} */
 
 .ql-editor p img {
 	margin: 10px auto;
@@ -132,6 +100,7 @@ h3,
 h4,
 h5,
 h6 {
+	/* font-family: "Satisfy", serif; */
 	font-family: 'Quicksand', sans-serif;
-    font-weight: 700;
+	font-weight: 600;
 }

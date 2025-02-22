@@ -17,18 +17,18 @@ export const SavedPostsList = ({
 }) => {
 	const queryClient = useQueryClient();
 
-    const getSavedPosts = useQuery({
-        queryKey: ['saved-posts', userId],
-        queryFn: async () => {
-            const response = await axios.get(`/api/user/${userId}/saved-posts`);
-            return response.data.savedPosts;
-        },
-        initialData: savedPosts
-    })
+	const getSavedPosts = useQuery({
+		queryKey: ['saved-posts', userId],
+		queryFn: async () => {
+			const response = await axios.get(`/api/user/${userId}/saved-posts`);
+			return response.data.savedPosts;
+		},
+		initialData: savedPosts,
+	});
 
 	const remove = useMutation({
 		mutationKey: ['saved-posts', userId],
-		mutationFn: async (id:string) => {
+		mutationFn: async (id: string) => {
 			const response = await axios.delete(`/api/saved-post/${id}`);
 			return response.data;
 		},
@@ -37,27 +37,28 @@ export const SavedPostsList = ({
 				queryKey: ['saved-posts', userId],
 			});
 
-            Toast.fire('Saved post removed successfully', '', 'success');
+			Toast.fire('Saved post removed successfully', '', 'success');
 		},
 		onError: () => {
 			Swal.fire('Error', 'Failed to remove saved post', 'error');
 		},
 	});
 
-	const handleRemove = (id:string) => {
-        Swal.fire({
-            title:'Are you sure?',
-            text:"You won't be able to revert this!",
-            icon:'warning',
-            showCancelButton:true,
-            confirmButtonText:'Yes, delete it!',
-            showLoaderOnConfirm:true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                remove.mutate(id)
-            }
-        })
-    };
+	const handleRemove = (id: string) => {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, delete it!',
+			showLoaderOnConfirm: true,
+			confirmButtonColor: '#dc2626',
+		}).then((result) => {
+			if (result.isConfirmed) {
+				remove.mutate(id);
+			}
+		});
+	};
 
 	if (savedPosts.length === 0) {
 		return (
@@ -69,15 +70,17 @@ export const SavedPostsList = ({
 
 	return (
 		<div>
-			{getSavedPosts.data.map((savedPost: SavedPost) => (
-				<PostCard
-					key={savedPost.id}
-					size="small"
-					post={savedPost.post as unknown as Post}
-					mode="saved-post"
-					onRemove={() => handleRemove(savedPost.id)}
-				/>
-			))}
+            <h1 className='text-2xl mb-4'>Saved Posts</h1>
+			<div>
+				{getSavedPosts.data.map((savedPost: SavedPost) => (
+					<PostCard
+						key={savedPost.id}
+						post={savedPost.post as unknown as Post}
+						mode="saved-post"
+						onDelete={() => handleRemove(savedPost.id)}
+					/>
+				))}
+			</div>
 		</div>
 	);
 };

@@ -14,7 +14,7 @@ const SearchFormReset = () => {
 	};
 
 	return (
-		<Button type="reset" onClick={reset} className="px-2 h-full bg-slate-700">
+		<Button type="reset" onClick={reset} className="px-2 h-full text-destructive border border-black bg-white">
 			<Link href="/">
 				<XMarkIcon className="size-6" />
 			</Link>

@@ -1,45 +1,28 @@
 import { auth } from '@/auth';
+import { NextResponse } from 'next/server';
 
 export default auth((req) => {
 	const { nextUrl } = req;
+	const isLoggedIn = !!req.auth;
 
-	// const urlWithSearchParams = (path: string) => `${path}${nextUrl.search}`;
+	// Daftar rute yang memerlukan autentikasi
+	const authRoutes = ['/dashboard'];
 
-	const isLoggedIn = !!req.auth; // Memastikan status login berdasarkan req.auth
-	const userRole = req.auth?.user?.role;
-
-	// Daftar route yang memerlukan autentikasi
-	const authRoutes = [
-		'/dashboard',
-		'/dashboard/profile',
-		'/dashboard/posts',
-		'/dashboard/saved-posts',
-		'/dashboard/notifications',
-	];
-	// Route khusus admin
-	const adminRoutes = ['/dashboard/categories'];
-
-	// Apakah path yang diakses adalah route yang memerlukan autentikasi?
+	// Periksa apakah pathname termasuk rute yang memerlukan autentikasi
 	const isAuthRoute = authRoutes.some((route) =>
 		nextUrl.pathname.startsWith(route)
 	);
-	// Apakah path yang diakses adalah route khusus admin?
-	const isAdminRoute = adminRoutes.some((route) =>
-		nextUrl.pathname.startsWith(route)
-	);
 
-	// Jika route memerlukan autentikasi dan pengguna belum login, arahkan ke halaman awal
-	if (isAuthRoute && !isLoggedIn) {
-		return Response.redirect(new URL('/', nextUrl));
+	if (!isLoggedIn && isAuthRoute) {
+		// Redirect ke halaman login dengan query parameter `auth=login`
+		const loginUrl = new URL(nextUrl.origin);
+		loginUrl.pathname = '/'; // Ganti dengan halaman login yang benar
+		loginUrl.searchParams.set('auth', 'login');
+
+		return NextResponse.redirect(loginUrl);
 	}
 
-	// Jika route memerlukan hak admin, tetapi pengguna adalah 'USER', arahkan ke dashboard utama
-	if (isAdminRoute && userRole === 'USER') {
-		return Response.redirect(new URL('/dashboard', nextUrl));
-	}
-
-	// Jika tidak ada kondisi yang sesuai, biarkan request diteruskan
-	return;
+	return NextResponse.next();
 });
 
 export const config = {

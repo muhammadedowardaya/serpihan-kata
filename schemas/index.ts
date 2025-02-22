@@ -1,5 +1,23 @@
 import z from 'zod';
 
+export const loginSchema = z.object({
+	email: z.string().min(1, 'email is required').email(),
+	password: z.string().min(1, 'Password is required'),
+});
+
+export const registerSchema = z
+	.object({
+		name: z.string().min(1, 'name is required').min(3),
+		username: z.string().min(3),
+		email: z.string().min(1, 'email is required').email(),
+		password: z.string().min(1, 'Password is required'),
+		confirm_password: z.string().min(1),
+	})
+	.refine((data) => data.password === data.confirm_password, {
+		message: 'Passwords must match',
+		path: ['confirm_password'],
+	});
+
 export const userSchema = z.object({
 	name: z
 		.string()
@@ -8,6 +26,7 @@ export const userSchema = z.object({
 		.regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces.'),
 	username: z
 		.string()
+		.min(1, 'Username is required')
 		.min(3, 'Username must be at least 3 characters.')
 		.max(30, 'Username must not exceed 30 characters.')
 		.regex(
@@ -19,6 +38,7 @@ export const userSchema = z.object({
 		.max(400, 'Bio must not exceed 50 characters.')
 		.or(z.literal(''))
 		.optional(),
+	socialMediaId: z.string().optional(),
 	socialMedia: z
 		.object({
 			instagram: z
@@ -55,6 +75,19 @@ export const postSchema = z.object({
 		.min(20, 'Description must be at least 20 characters.')
 		.max(100, 'Description cannot exceed 100 characters.'),
 	content: z.string().min(20, 'Content must be at least 20 characters.'),
+	tags: z
+		.array(
+			z.object({
+				id: z.string(), // ID harus UUID
+				label: z.string(),
+				value: z
+					.string()
+					.min(2, 'Tag must be at least 2 characters.')
+					.max(20, 'Tag cannot exceed 20 characters.'),
+			})
+		)
+		.min(1, 'At least one tag is required.')
+		.max(5, 'You can select up to 5 tags.'),
 	thumbnail: z
 		.instanceof(File)
 		.refine(
@@ -76,7 +109,6 @@ export const postSchema = z.object({
 			}
 		)
 		.nullable(),
-	categoryId: z.string(),
 });
 
 export const categorySchema = z.object({

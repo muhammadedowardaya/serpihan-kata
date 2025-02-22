@@ -6,7 +6,12 @@ import Quill from 'quill';
 import hljs from 'highlight.js';
 
 import { useAtom } from 'jotai';
-import { loadablePostData, loadablePostId, progressAtom } from '@/jotai';
+import {
+	editPostIdAtom,
+	loadablePostData,
+	loadablePostId,
+	progressAtom,
+} from '@/jotai';
 import axios, { AxiosProgressEvent } from 'axios';
 import Swal from 'sweetalert2';
 
@@ -52,6 +57,7 @@ const QuillEditor = ({
 	field: { value: string; onChange: (value: string) => void };
 	onContentChange?: (value: string) => void;
 }) => {
+	const [editPostId] = useAtom(editPostIdAtom);
 	const [asyncPostId] = useAtom(loadablePostId);
 	const [postData] = useAtom(loadablePostData);
 	const [, setProgress] = useAtom(progressAtom);
@@ -59,17 +65,14 @@ const QuillEditor = ({
 	const editorRef = useRef<Quill | null>(null);
 	const editorContainer = useRef<HTMLDivElement | null>(null);
 
-	const initialPostData = useRef(false);
-
 	useEffect(() => {
-		if (editorRef?.current) {
-			if (postData.state === 'hasData' && !initialPostData.current) {
+		if (postData.state === 'hasData') {
+			if (editorRef?.current) {
 				editorRef.current.root.innerHTML = field.value;
 			}
-
-			initialPostData.current = true;
 		}
-	}, [field.value, postData.state]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [editorRef.current, postId, postData.state]);
 
 	const handleImageUpload = async (quill: Quill, postId: string) => {
 		editorRef?.current?.enable(false);
@@ -236,7 +239,7 @@ const QuillEditor = ({
 		initializeEditor();
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [field.value, asyncPostId.state]);
+	}, [asyncPostId, field.value]);
 
 	return (
 		<div

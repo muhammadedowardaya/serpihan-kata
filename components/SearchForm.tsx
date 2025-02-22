@@ -2,8 +2,8 @@ import React from 'react';
 import Form from 'next/form';
 import { Input } from '@/components/ui/input';
 import SearchFormReset from '@/components/SearchFormReset';
-import { Button } from '@radix-ui/themes';
-import { SearchIcon } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Button } from './ui/button';
 
 const SearchForm = ({
 	query,
@@ -14,20 +14,24 @@ const SearchForm = ({
 }) => {
 	return (
 		<Form
-			action="/"
+			action="/posts"
 			scroll={false}
-			className={`search-form h-10 flex gap-x-2 max-w-[600px] ${className}`}
+			className={`search-form flex gap-x-2 sm:gap-4 ${className}`}
 		>
 			<Input
-				type="search"
+				type="text"
 				defaultValue={query}
 				placeholder="Search posts..."
-				className="border border-slate-500 h-full"
+				className="h-full text-sm sm:text-base background-highlight"
 				name="query"
 			/>
 			{query && <SearchFormReset />}
-			<Button type="submit" className="p-1 px-2 h-full">
-				<SearchIcon className="size-6" />
+			<Button
+				type="submit"
+				variant="ghost"
+				className="px-3 py-1 h-full background-highlight text-dark hover:background-highlight hover:text-dark"
+			>
+				<Search strokeWidth={2} />
 			</Button>
 		</Form>
 	);

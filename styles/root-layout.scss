@@ -1,0 +1,16 @@
+.root-layout {
+	display: grid;
+	grid-template-areas:
+		'root-navbar root-navbar'
+		'root-content root-content';
+	grid-template-rows: 60px calc(100vh - 60px);
+	grid-template-columns: 1fr 1fr;
+
+	.root-navbar {
+		grid-area: root-navbar;
+	}
+
+	.root-content {
+		grid-area: root-content;
+	}
+}

@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
-import { CreateNewPostButton } from '@/components/CreateNewPostButton';
-import PostList from '@/components/DashboardPostList';
+import { ActionButtonMyPosts } from '@/components/ActionButtonMyPosts';
+import { DashboardPostList } from '@/components/DashboardPostList';
 import { prisma } from '@/lib/prisma';
 import { Post } from '@/types';
 import { Heading } from '@radix-ui/themes';
@@ -15,7 +15,11 @@ const MyPostsPage = async () => {
 		},
 		include: {
 			user: true,
-			category: true,
+			postTag: {
+				include: {
+					tag: true,
+				},
+			},
 		},
 	});
 
@@ -23,9 +27,9 @@ const MyPostsPage = async () => {
 		<div className="space-y-4 pt-[20px]">
 			<div className="flex justify-between items-center mb-[40px]">
 				<Heading as="h1">My Posts</Heading>
-				<CreateNewPostButton />
+				<ActionButtonMyPosts />
 			</div>
-			<PostList initialData={data as unknown as Post[]} />
+			<DashboardPostList initialData={data as unknown as Post[]} />
 		</div>
 	);
 };

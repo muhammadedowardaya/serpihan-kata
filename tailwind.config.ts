@@ -36,15 +36,21 @@ const config: Config = {
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
+					text: 'hsl(var(--secondary-text))',
 					foreground: 'hsl(var(--secondary-foreground))',
+				},
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					hover: 'hsl(var(--accent-hover))',
+					foreground: 'hsl(var(--accent-foreground))',
+				},
+				highlight: {
+					DEFAULT: 'hsl(var(--highlight))',
+					hover: 'hsl(var(--highlight-hover))',
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))',
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))',
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -100,7 +106,9 @@ const config: Config = {
 			},
 		},
 		fontFamily: {
-            "quicksand": ["Quicksand", "sans-serif"],
+			quicksand: ['Quicksand', 'sans-serif'],
+			satisfy: ['Satisfy', 'serif'],
+			inter: ['Inter', 'serif'],
 		},
 	},
 	plugins: [tailwindcssAnimate, typography],

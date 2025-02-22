@@ -1,7 +1,8 @@
-import { auth } from '@/auth';
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import ChooseLoginButton from './ChooseLoginButton';
 
 import {
@@ -14,12 +15,31 @@ import {
 } from '@/components/ui/menubar';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { LogoutButton } from './LogoutButton';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { Skeleton } from './ui/skeleton';
+import { Bell, House, LayoutList, ListChecks, UserIcon } from 'lucide-react';
+import { UnreadNotification } from './UnreadNotifications';
+import { User } from 'next-auth';
+import { useAtomValue } from 'jotai';
+import { userAtom } from '@/jotai';
 
-const Navbar = async ({ className }: { className?: string }) => {
-	const session = await auth();
+const Navbar = ({ className }: { className?: string }) => {
+	const [isOpen, setIsOpen] = useState(false);
+
+	const user = useAtomValue(userAtom);
+
+	const getUser = useQuery<User>({
+		queryKey: ['user'],
+		queryFn: async () => {
+			const response = await axios.get('/api/user');
+			return response.data.user;
+		},
+		enabled: !!user,
+	});
 
 	let avatarFallbackLetter = '';
-	const fullNameArray = session?.user?.name?.split(' ');
+	const fullNameArray = user?.name?.split(' ');
 
 	if (fullNameArray) {
 		let firstLetter = '';
@@ -37,75 +57,118 @@ const Navbar = async ({ className }: { className?: string }) => {
 	}
 
 	return (
-		<nav
-			className={`flex justify-between items-center px-5 bg-white border-b ${className}`}
-		>
-			<Link href="/">
-				<Image src="/logo.png" alt="logo" width={30} height={30} />
+		<nav className={`flex justify-between items-center ${className}`}>
+			<Link href="/" className="flex-shrink-0">
+				<Image src="/logo-singkat-sk1x.png" alt="logo" width={30} height={30} />
 			</Link>
-			<div className="flex items-center gap-5 text-black">
-				{session && session?.user ? (
-					<>
-						<Link href="/dashboard/posts/create">
-							<span>Create</span>
-						</Link>
 
-						<Menubar className="border-none shadow-none">
-							<MenubarMenu>
-								<MenubarTrigger
-									asChild
-									className="p-0 focus:bg-transparent data-[state=open]:bg-transparent"
-								>
-									<div className="flex gap-4 items-center">
-										{session.user.name && session?.user?.name?.length > 23 ? (
-											<span className="text-sm">
-												@{session?.user?.username}
-											</span>
-										) : (
-											<span className="text-sm">{session?.user?.name}</span>
-										)}
-										<div className="relative w-10 h-10 border-none">
-											<Avatar className="w-full h-full">
-												<AvatarImage
-													src={session?.user?.image as string}
-													alt={session?.user?.name as string}
-												/>
-												<AvatarFallback>{avatarFallbackLetter}</AvatarFallback>
-											</Avatar>
+			{getUser.isPending && user ? (
+				<div className="flex items-center gap-4">
+					<Skeleton className="h-3 w-10" />
+					<Skeleton className="h-3 w-20" />
+					<Skeleton className="w-10 h-10 rounded-full" />
+				</div>
+			) : (
+				<div className="flex flex-shrink-0 items-center gap-5">
+					{user ? (
+						<>
+							<Link href="/dashboard/posts/create" className="hidden sm:block">
+								<span className="text-sm md:text-base ">Create</span>
+							</Link>
+
+							<Menubar className="border-none shadow-none bg-transparent">
+								<MenubarMenu>
+									<MenubarTrigger
+										asChild
+										className="p-0 focus:bg-transparent data-[state=open]:bg-transparent bg-transparent"
+										onClick={() => setIsOpen(!isOpen)}
+									>
+										<div className="flex gap-4 items-center">
+											{user?.name && user?.name?.length > 23 ? (
+												<span className="text-sm md:text-base hidden xs:inline-block font-normal">
+													@{user?.username}
+												</span>
+											) : (
+												<span className="text-sm md:text-base hidden xs:inline-block font-normal">
+													{user?.name}
+												</span>
+											)}
+											<div className="relative w-10 h-10 border-none">
+												<Avatar className="w-full h-full">
+													<AvatarImage
+														src={user?.image as string}
+														alt={user?.name as string}
+													/>
+													<AvatarFallback>
+														{avatarFallbackLetter.toUpperCase()}
+													</AvatarFallback>
+												</Avatar>
+												{!!isOpen === false && (
+													<UnreadNotification
+														className={`absolute -top-1 -right-2`}
+													/>
+												)}
+											</div>
 										</div>
-									</div>
-								</MenubarTrigger>
-								<MenubarContent
-									className="w-48 mt-2 p-2 bg-white border rounded-lg shadow-lg"
-									align="end"
-								>
-									<MenubarItem asChild>
-										<Link href="/dashboard/profile" className='text-slate-700 font-[500]'>My Profile</Link>
-									</MenubarItem>
-									<MenubarSeparator />
-									<MenubarItem asChild>
-										<Link href="/dashboard/notifications" className='text-slate-700 font-[500]'>Notifications</Link>
-									</MenubarItem>
-									<MenubarSeparator />
-									<MenubarItem asChild>
-										<Link href="/dashboard/posts" className='text-slate-700 font-[500]'>My Posts</Link>
-									</MenubarItem>
-									<MenubarSeparator />
-									<MenubarItem asChild>
-										<Link href="/dashboard/saved-posts" className='text-slate-700 font-[500]'>Saved Posts</Link>
-									</MenubarItem>
-									<MenubarSeparator />
-									<MenubarItem asChild>
-										<LogoutButton />
-									</MenubarItem>
-								</MenubarContent>
-							</MenubarMenu>
-						</Menubar>
-					</>
-				) : (
-					<ChooseLoginButton />
-				)}
-			</div>
+									</MenubarTrigger>
+									<MenubarContent
+										className="w-48 mt-2 p-2 bg-white border rounded-lg shadow-lg"
+										align="end"
+									>
+										<MenubarItem asChild>
+											<Link href="/" className="navbar-item">
+												<House />
+												<span>Home</span>
+											</Link>
+										</MenubarItem>
+										<MenubarSeparator />
+										<MenubarItem asChild>
+											<Link href="/dashboard/profile" className="navbar-item">
+												<UserIcon />
+												<span>@{user?.username}</span>
+											</Link>
+										</MenubarItem>
+										<MenubarSeparator />
+										<MenubarItem asChild>
+											<Link
+												href="/dashboard/notifications"
+												className="navbar-item"
+											>
+												<Bell />
+												<span>Notifications</span>
+												<UnreadNotification />
+											</Link>
+										</MenubarItem>
+										<MenubarSeparator />
+										<MenubarItem asChild>
+											<Link href="/dashboard/posts" className="navbar-item">
+												<LayoutList />
+												<span>My Posts</span>
+											</Link>
+										</MenubarItem>
+										<MenubarSeparator />
+										<MenubarItem asChild>
+											<Link
+												href="/dashboard/saved-posts"
+												className="navbar-item"
+											>
+												<ListChecks />
+												<span>Saved Posts</span>
+											</Link>
+										</MenubarItem>
+										<MenubarSeparator />
+										<MenubarItem asChild>
+											<LogoutButton />
+										</MenubarItem>
+									</MenubarContent>
+								</MenubarMenu>
+							</Menubar>
+						</>
+					) : (
+						<ChooseLoginButton />
+					)}
+				</div>
+			)}
 		</nav>
 	);
 };

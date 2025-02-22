@@ -33,7 +33,7 @@ import { editProfileAtom } from '@/jotai';
 import { useAtom } from 'jotai';
 
 const EditFromProfile = () => {
-	const { data: session } = useSession();
+	const { data: session, update } = useSession();
 
 	const [, setEditProfile] = useAtom(editProfileAtom);
 
@@ -44,7 +44,7 @@ const EditFromProfile = () => {
 	const [fileImage, setFileImage] = useState<File | null>(null);
 
 	const getUser = useQuery<unknown, Error, User>({
-		queryKey: ['profile', session?.user?.id],
+		queryKey: ['profile'],
 		queryFn: async () => {
 			const response = await axios.get(`/api/user`);
 			return response.data.user;
@@ -52,21 +52,48 @@ const EditFromProfile = () => {
 		enabled: !!session?.user?.id,
 	});
 
-	const mutation = useMutation<unknown, Error, { data: FormData }>({
+	const mutation = useMutation<User, Error, { data: FormData }>({
 		mutationFn: async ({ data }) => {
-			const response = await axios.patch(`/api/user`, data);
-			return response.data.user;
+			try {
+				const response = await axios.patch(`/api/user`, data);
+				return response.data.user;
+			} catch (error: unknown) {
+				// Tangkap error eksplisit dari server
+				if (axios.isAxiosError(error)) {
+					// Error dari server dengan status selain 2xx
+					throw new Error(
+						error?.response?.data.error || 'Failed to update profile'
+					);
+				}
+				// Error lain, seperti jaringan
+				if (error instanceof Error) {
+					throw new Error(error.message || 'Something went wrong');
+				}
+
+				throw new Error('Something went wrong');
+			}
 		},
 		mutationKey: ['profile'],
-		onSuccess: () => {
+		onSuccess: (data) => {
+			update({
+				user: {
+					username: data?.username,
+				},
+			});
 			queryClient.invalidateQueries({
-				queryKey: ['profile', session?.user?.id],
+				queryKey: ['profile'],
 			});
 			Toast.fire('Profile updated successfully', '', 'success');
 			setEditProfile(false);
 		},
-		onError: () => {
-			Swal.fire('Error', 'Failed to update profile', 'error');
+		onError: (error) => {
+			if (axios.isAxiosError(error)) {
+				Swal.fire('Error', error.response?.data.error, 'error');
+			}
+
+			if (error instanceof Error) {
+				Swal.fire('Error', error.message, 'error');
+			}
 		},
 	});
 
@@ -76,6 +103,7 @@ const EditFromProfile = () => {
 			name: '',
 			username: '',
 			bio: '',
+			socialMediaId: '',
 			socialMedia: {
 				facebook: '',
 				instagram: '',
@@ -93,6 +121,37 @@ const EditFromProfile = () => {
 			form.setValue('name', (getUser.data?.name as string) || '');
 			form.setValue('username', (getUser.data?.username as string) || '');
 			form.setValue('bio', (getUser.data?.bio as string) || '');
+
+			if (getUser.data?.socialMedia) {
+				form.setValue(
+					'socialMedia.facebook',
+					(getUser.data?.socialMedia.facebook as string) || ''
+				);
+				form.setValue(
+					'socialMedia.instagram',
+					(getUser.data?.socialMedia.instagram as string) || ''
+				);
+				form.setValue(
+					'socialMedia.linkedin',
+					(getUser.data?.socialMedia.linkedin as string) || ''
+				);
+				form.setValue(
+					'socialMedia.tiktok',
+					(getUser.data?.socialMedia.tiktok as string) || ''
+				);
+				form.setValue(
+					'socialMedia.youtube',
+					(getUser.data?.socialMedia.youtube as string) || ''
+				);
+				form.setValue(
+					'socialMedia.github',
+					(getUser.data?.socialMedia.github as string) || ''
+				);
+				form.setValue(
+					'socialMedia.other',
+					(getUser.data?.socialMedia.other as string) || ''
+				);
+			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [getUser.isLoading]);
@@ -109,9 +168,12 @@ const EditFromProfile = () => {
 		formData.append('tiktok', values.socialMedia?.tiktok || '');
 		formData.append('youtube', values.socialMedia?.youtube || '');
 		formData.append('github', values.socialMedia?.github || '');
+		formData.append('other', values.socialMedia?.other || '');
 
 		if (fileImage) {
 			formData.append('image', fileImage);
+		} else {
+			formData.append('image', (getUser.data?.image as string) || '');
 		}
 
 		mutation.mutate({
@@ -329,9 +391,27 @@ const EditFromProfile = () => {
 							</FormItem>
 						)}
 					/>
+
+					<FormField
+						control={form.control}
+						name="socialMedia.other"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Other</FormLabel>
+								<FormControl>
+									<Input {...field} placeholder="Other URL like your website" />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 				</fieldset>
 
-				<Button type="submit" disabled={mutation.isPending} className='bg-green-400'>
+				<Button
+					type="submit"
+					disabled={mutation.isPending}
+					className="hover:bg-slate-100 bg-green-600 hover:text-green-600 hover:border hover:border-green-600"
+				>
 					{mutation.isPending ? 'Updating...' : 'Update Profile'}
 				</Button>
 			</form>

@@ -20,7 +20,7 @@ export async function AppSidebar() {
 			<SidebarTrigger className="absolute w-[40px] h-[60px] z-50 -right-10 top-0 bg-white" />
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>MEDOW BLOG | Dashboard</SidebarGroupLabel>
+					<SidebarGroupLabel>GO - BLOG | Dashboard</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							<SidebarMenuItemList

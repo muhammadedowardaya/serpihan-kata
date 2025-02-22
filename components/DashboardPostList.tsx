@@ -2,15 +2,17 @@
 
 import { Post } from '@/types';
 import React, { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import PostCard from './PostCard';
 import { LoaderCircle } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { editPostIdAtom } from '@/jotai';
 import EditFormPost from './EditFormPost';
+import { Toast } from '@/lib/sweetalert';
+import Swal from 'sweetalert2';
 
-const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
+export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	const [editPostId, setEditPostId] = useAtom(editPostIdAtom);
 
 	const queryClient = useQueryClient();
@@ -33,10 +35,45 @@ const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 		enabled: !!editPostId,
 	});
 
-	useEffect(() => {
-		queryClient.invalidateQueries({
-			queryKey: ['my-post', editPostId],
+	const deleteMyPost = useMutation<unknown, Error, { id: string }>({
+		mutationKey: ['my-post', editPostId],
+		mutationFn: async ({ id }: { id: string }) => {
+			const response = await axios.delete(`/api/post/${id}`);
+			return response.data;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['my-posts'],
+			});
+			Toast.fire('Post has been deleted!', '', 'success');
+		},
+		onError: () => {
+			Swal.fire('Error', 'Failed to delete post', 'error');
+		},
+	});
+
+	const handleDelete = (id: string) => {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: 'You won\'t be able to revert this!',
+			icon: 'warning',
+			showConfirmButton: true,
+			confirmButtonText: 'Delete',
+            confirmButtonColor: '#d33',
+			showCancelButton: true,
+		}).then((result) => {
+			if (result.isConfirmed) {
+				deleteMyPost.mutate({ id });
+			}
 		});
+	};
+
+	useEffect(() => {
+		if (editPostId) {
+			queryClient.invalidateQueries({
+				queryKey: ['my-post', editPostId],
+			});
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editPostId]);
 
@@ -69,8 +106,8 @@ const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 						key={post.id}
 						post={post}
 						mode="my-post"
-						size="small"
 						onEdit={() => setEditPostId(post.id)}
+						onDelete={() => handleDelete(post.id)}
 					/>
 				))
 			) : (
@@ -80,4 +117,3 @@ const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	);
 };
 
-export default DashboardPostList;

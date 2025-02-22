@@ -4,7 +4,10 @@ import { Container, Theme } from '@radix-ui/themes';
 import { SessionProvider } from 'next-auth/react';
 import QueryProvider from '@/components/QueryProvider';
 
-export default function Layout({
+import '@/styles/root-layout.scss';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+export default async function Layout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
@@ -13,14 +16,14 @@ export default function Layout({
 		<QueryProvider>
 			<SessionProvider>
 				<Theme>
-					<Container>
-						<main className="relative">
-							<div className="sticky top-0 z-50 w-full">
-								<Navbar className="h-[60px]" />
-							</div>
-							{children}
-						</main>
-					</Container>
+					<main className="relative root-layout bg-primary">
+						<div className="root-navbar sticky top-0 z-50 w-full padding-content">
+							<Navbar className="h-full bg-transparent" />
+						</div>
+						<ScrollArea className="root-content">
+							<Container className="relative">{children}</Container>
+						</ScrollArea>
+					</main>
 				</Theme>
 			</SessionProvider>
 		</QueryProvider>

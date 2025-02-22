@@ -26,19 +26,29 @@ export const GET = async (
 						likes: true,
 					},
 				},
+				post: {
+					select: {
+						id: true,
+						slug: true,
+					},
+				},
 			},
 		});
 
-		return NextResponse.json({
-			replies,
-			success: true,
-			status: 200,
-		});
+		return NextResponse.json(
+			{
+				replies,
+				success: true,
+			},
+			{ status: 200 }
+		);
 	} catch (error) {
-		return NextResponse.json({
-			error,
-			success: false,
-			status: 500,
-		});
+		return NextResponse.json(
+			{
+				error,
+				success: false,
+			},
+			{ status: 500 }
+		);
 	}
 };

@@ -10,12 +10,14 @@ import {
 	LayoutList,
 	Bell,
 	LogOut,
-    ListChecks,
+	ListChecks,
 } from 'lucide-react';
 
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { User } from '@/types';
 import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 // Menu items.
 const adminItems = [
@@ -82,7 +84,7 @@ const userItems = [
 		url: '/dashboard/logout',
 		icon: LogOut,
 	},
-];
+]; 
 
 export const SidebarMenuItemList = ({
 	session,
@@ -91,8 +93,22 @@ export const SidebarMenuItemList = ({
 }) => {
 	const pathname = usePathname();
 
+	useQuery({
+		queryKey: ['profile'],
+		queryFn: async () => {
+			const response = await axios.get('/api/user');
+			// await update({
+			// 	user: {
+			// 		username: response.data.user.username,
+			// 	},
+			// });
+			return response.data.user;
+		},
+        enabled: !!session?.user
+	});
+
 	return (
-		<div className='flex flex-col gap-1'>
+		<div className="flex flex-col gap-1">
 			{session?.user?.role === 'ADMIN' &&
 				adminItems.map((item) => (
 					<SidebarMenuItem key={item.title}>

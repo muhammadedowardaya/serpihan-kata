@@ -3,8 +3,9 @@
 import { Toast } from '@/lib/sweetalert';
 import { Button } from '@radix-ui/themes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper, Row } from '@tanstack/react-table';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import Swal from 'sweetalert2';
 
 // Tipe untuk kategori
@@ -12,6 +13,7 @@ export type Category = {
 	id: string;
 	label: string;
 	value: string;
+	userId: string;
 };
 
 const DeleteButton = ({ category }: { category: Category }) => {
@@ -125,6 +127,32 @@ const EditButton = ({ category }: { category: Category }) => {
 	);
 };
 
+interface ButtonProps<TData> {
+	row: Row<TData>;
+}
+
+const ButtonAction = ({ row }: ButtonProps<Category>) => {
+	const category = row.original; // Tipe otomatis Category
+	const { data: session } = useSession(); // Ambil data user dari session
+
+	const isOwner = session?.user.id === category.userId; // Cek kepemilikan
+
+	return (
+		<div className="flex items-center space-x-2">
+			{isOwner ? (
+				<>
+					<EditButton category={category} />
+					<DeleteButton category={category} />
+				</>
+			)
+            :
+            <span>-</span>
+        
+        }
+		</div>
+	);
+};
+
 // Membuat columnHelper
 const columnHelper = createColumnHelper<Category>();
 
@@ -138,14 +166,6 @@ export const columns: ColumnDef<Category, string>[] = [
 	columnHelper.display({
 		id: 'actions', // Kolom khusus tanpa accessor
 		header: 'Actions',
-		cell: ({ row }) => {
-			const category = row.original; // Tipe otomatis Category
-			return (
-				<div className="flex items-center space-x-2">
-					<EditButton category={category} />
-					<DeleteButton category={category} />
-				</div>
-			);
-		},
+		cell: ({ row }) => <ButtonAction row={row} />,
 	}),
 ];

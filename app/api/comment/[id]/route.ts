@@ -1,3 +1,5 @@
+import { getUnreadNotification } from '@/actions/notification';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -10,6 +12,9 @@ export const GET = async (
 	}
 ) => {
 	try {
+		const session = await auth();
+		const userId = session?.user?.id;
+
 		const id = (await params).id;
 
 		const comment = await prisma.comment.findFirst({
@@ -39,6 +44,11 @@ export const GET = async (
 						},
 					},
 				},
+				post: {
+					select: {
+						slug: true,
+					},
+				},
 			},
 		});
 
@@ -47,17 +57,18 @@ export const GET = async (
 		return NextResponse.json({
 			comment,
 			success: true,
-			status: 200,
 		});
 	} catch (error) {
 		if (error instanceof Error) {
 			console.log(error.message);
 		}
 
-		return NextResponse.json({
-			success: false,
-			status: 500,
-		});
+		return NextResponse.json(
+			{
+				success: false,
+			},
+			{ status: 500 }
+		);
 	}
 };
 
@@ -75,18 +86,30 @@ export const DELETE = async (
 			where: {
 				id,
 			},
+			select: {
+				userId: true,
+			},
 		});
 
-		return NextResponse.json({
-			comment,
-			success: true,
-			status: 200,
-		});
+		const unreadCount = await getUnreadNotification(comment?.userId as string);
+
+		return NextResponse.json(
+			{
+				comment,
+				unreadCount,
+				success: true,
+			},
+			{
+				status: 200,
+			}
+		);
 	} catch (error) {
-		return NextResponse.json({
-			error,
-			success: false,
-			status: 500,
-		});
+		return NextResponse.json(
+			{
+				error,
+				success: false,
+			},
+			{ status: 500 }
+		);
 	}
 };
