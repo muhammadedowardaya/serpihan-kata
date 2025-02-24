@@ -18,16 +18,18 @@ import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ScrollArea } from './ui/scroll-area';
 import { useAtom } from 'jotai';
-import { hasAccountAtom, showModalAuthAtom } from '@/jotai';
+import { alertAuthAtom, hasAccountAtom, showModalAuthAtom } from '@/jotai';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from './ui/alert';
 import { ShieldX } from 'lucide-react';
+import { MyAlert } from './MyAlert';
 
 const ChooseLoginButton = () => {
 	const [isErrorDialogOpen, setIsErrorDialogOpen] = React.useState(false);
 	const [showModalAuth, setShowModalAuth] = useAtom(showModalAuthAtom);
 
 	const [hasAccount, setHasAccount] = useAtom(hasAccountAtom);
+	const [alertAuth, setAlertAuth] = useAtom(alertAuthAtom);
 
 	const searchParams = useSearchParams();
 
@@ -65,10 +67,17 @@ const ChooseLoginButton = () => {
 				}, 200);
 			}
 
+			if (error === 'AccessDenied') {
+				setTimeout(() => {
+					setErrorMessage('Access Denied.');
+					setIsErrorDialogOpen(true);
+				}, 200);
+			}
+
 			// Tunggu sebelum melakukan redirect
 			setTimeout(() => {
 				router.replace('/');
-			}, 2000);
+			}, 5000);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [error, code, auth]);
@@ -100,12 +109,7 @@ const ChooseLoginButton = () => {
 			{/* Main dialog */}
 			<Dialog open={showModalAuth} onOpenChange={setShowModalAuth}>
 				<DialogTrigger asChild>
-					<Button
-						variant="ghost"
-						className="background-highlight hover:bg-slate-900 text-dark hover:text"
-					>
-						Login
-					</Button>
+					<Button className="font-bold">Login</Button>
 				</DialogTrigger>
 				<DialogContent className="sm:max-w-[425px] h-max text-dark">
 					<DialogHeader>
@@ -176,6 +180,17 @@ const ChooseLoginButton = () => {
 							)}
 						</div>
 					</div>
+
+					{!!alertAuth && (
+						<MyAlert
+							open={!!alertAuth}
+							title={alertAuth.title}
+							description={alertAuth.description}
+							type={alertAuth.type}
+							onConfirm={() => setAlertAuth(null)}
+							textConfirmButton={alertAuth.textConfirmButton}
+						/>
+					)}
 				</DialogContent>
 			</Dialog>
 		</>

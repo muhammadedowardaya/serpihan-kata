@@ -18,13 +18,12 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { Toast } from '@/lib/sweetalert';
 import { useAtom } from 'jotai';
-import { hasAccountAtom } from '@/jotai';
+import { alertAuthAtom, hasAccountAtom } from '@/jotai';
 
 export const RegisterForm = () => {
-
-    const [,setHasAccount] = useAtom(hasAccountAtom);
+	const [, setHasAccount] = useAtom(hasAccountAtom);
+	const [, setAlertAuth] = useAtom(alertAuthAtom);
 
 	const mutation = useMutation({
 		mutationKey: ['register'],
@@ -46,10 +45,16 @@ export const RegisterForm = () => {
 				password,
 			});
 		},
-        onSuccess: () => {
-            Toast.fire('Registration successful', '', 'success');
-            setHasAccount(true);
-        }
+		onSuccess: () => {
+			setHasAccount(true);
+			setAlertAuth({
+				title: 'You’re in! 🎉',
+				description:
+					'Your account has been created. Let’s log in and get started!',
+				textConfirmButton: 'Let’s go!',
+				type: 'success',
+			});
+		},
 	});
 
 	const form = useForm<z.infer<typeof registerSchema>>({
@@ -80,7 +85,11 @@ export const RegisterForm = () => {
 						<FormItem>
 							<FormLabel>Name</FormLabel>
 							<FormControl>
-								<Input placeholder="type here..." {...field} />
+								<Input
+									placeholder="type here..."
+									disabled={mutation.isPending}
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -93,7 +102,11 @@ export const RegisterForm = () => {
 						<FormItem>
 							<FormLabel>Username</FormLabel>
 							<FormControl>
-								<Input placeholder="type here..." {...field} />
+								<Input
+									placeholder="type here..."
+									disabled={mutation.isPending}
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -106,7 +119,12 @@ export const RegisterForm = () => {
 						<FormItem>
 							<FormLabel>Email</FormLabel>
 							<FormControl>
-								<Input type="email" placeholder="type here..." {...field} />
+								<Input
+									type="email"
+									placeholder="type here..."
+									disabled={mutation.isPending}
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -119,7 +137,12 @@ export const RegisterForm = () => {
 						<FormItem>
 							<FormLabel>Password</FormLabel>
 							<FormControl>
-								<Input placeholder="type here..." type="password" {...field} />
+								<Input
+									placeholder="type here..."
+									disabled={mutation.isPending}
+									type="password"
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -132,15 +155,20 @@ export const RegisterForm = () => {
 						<FormItem>
 							<FormLabel>Confirm Password</FormLabel>
 							<FormControl>
-								<Input placeholder="type here..." type="password" {...field} />
+								<Input
+									placeholder="type here..."
+									disabled={mutation.isPending}
+									type="password"
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
 
-				<Button type="submit" className="w-full">
-					Submit
+				<Button type="submit" className="w-full" disabled={mutation.isPending}>
+					{mutation.isPending ? 'Loading...' : 'Register'}
 				</Button>
 			</form>
 		</Form>

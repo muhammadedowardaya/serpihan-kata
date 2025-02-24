@@ -61,36 +61,42 @@ export default async function PostsPage({
 		<div className="relative">
 			<Section className="space-y-6 relative pt-0 pb-6">
 				{/* Header */}
-				<div className="xs:sticky top-0 z-40 bg-[var(--primary)] pb-4 pt-6 md:pt-0 shadow-border border-b padding-content">
-					<div className="flex items-center gap-x-4 mb-4 px-1 justify-center text-center">
-						<h2 className="text-2xl sm:text-4xl font-bold font-satisfy">
-							Jelajahi Beragam Tulisan
-						</h2>
-					</div>
-
+				<div className="flex items-center gap-x-4 mb-4 mt-8 sm:mt-0 px-1 justify-center text-center">
+					<h2 className="text-2xl sm:text-4xl font-bold font-satisfy">
+						Jelajahi Beragam Tulisan
+					</h2>
+				</div>
+				<div className="xs:sticky bg-background top-0 z-40 pb-4 pt-6 md:pt-0 shadow-border border-b padding-content">
 					{/* Search & Filter */}
-					<div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 justify-center">
+					<div className="flex flex-col sm:flex-row items-center gap-2 justify-center">
 						<SearchForm
 							query={query}
-							className="w-full max-w-[500px] h-[45px]"
+							className="w-full max-w-[500px] h-[35px]"
 						/>
-						<div className="flex items-center gap-2">
+						<div className="flex flex-wrap items-center gap-2">
 							<FilterByTags
 								tags={tags}
-								className="h-[45px] px-3 py-1 background-highlight hover:background-highlight text-dark hover:text-dark"
+								className="h-[35px] px-3 py-1 btn-primary"
 							/>
 							<SortDropdownPosts
 								sortBy={sortBy}
-								className="h-[45px] px-3 py-1 background-highlight text-dark hover:background-highlight hover:text-dark"
+								className="h-[35px] px-3 py-1 btn-primary"
 							/>
 						</div>
 					</div>
+
+					{query && (
+						<h3 className="text-center mt-4">
+							Result for <q>{query}</q>
+						</h3>
+					)}
+					{/* {tags && <p>{tags.map(({ label }) => label)}</p>} */}
 				</div>
 
 				{/* Post List */}
 				{posts.length > 0 ? (
 					<PostList
-						className="flex justify-center flex-wrap gap-8 mt-[40px] padding-content relative"
+						className="flex justify-center flex-wrap gap-8 my-[40px] padding-content relative"
 						posts={posts as unknown as Post[]}
 					/>
 				) : (

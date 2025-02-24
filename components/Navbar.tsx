@@ -94,7 +94,7 @@ const Navbar = ({ className }: { className?: string }) => {
 												</span>
 											)}
 											<div className="relative w-10 h-10 border-none">
-												<Avatar className="w-full h-full">
+												<Avatar className="w-full h-full bg-secondary border border-white">
 													<AvatarImage
 														src={user?.image as string}
 														alt={user?.name as string}

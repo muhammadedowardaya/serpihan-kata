@@ -161,7 +161,7 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 			role="article"
 			aria-labelledby={`comment-author-${comment.user?.username}`}
 		>
-			<div className="border border-slate-400 rounded-md p-2 pb-2 bg-slate-100 h-max">
+			<div className="border border-slate-400 rounded-md p-2 pb-2 bg-background text-background-foreground h-max">
 				<div className="flex gap-x-4">
 					{/* Avatar */}
 					<Avatar>
@@ -169,7 +169,7 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 							src={comment?.user?.image}
 							alt={`${comment?.user?.username}'s avatar`}
 						/>
-						<AvatarFallback className="bg-slate-400 text-white border border-white">
+						<AvatarFallback className="bg-accent hover:bg-accent-hover text-accent-foreground border border-white">
 							{avatarFallbackLetter}
 						</AvatarFallback>
 					</Avatar>
@@ -178,9 +178,9 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 					<div className="w-full flex flex-col justify-evenly">
 						<h2
 							id={`comment-author-${comment.user?.username}`}
-							className="text-slate-400 font-medium text-xs"
+							className="text-slate-500 font-medium text-xs"
 						>
-							{comment?.user?.username}
+							{comment?.user.username}
 						</h2>
 						<p className="mt-1 text-slate-900 text-xs">{comment?.message}</p>
 					</div>
@@ -188,7 +188,7 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 
 				{/* Waktu komentar */}
 				<div className="flex items-center justify-between gap-x-4 mt-4">
-					<span className="text-slate-600 text-xs">
+					<span className="text-slate-500 text-xs">
 						{formatDistance(comment?.createdAt, new Date(), {
 							addSuffix: true,
 						})}
@@ -208,8 +208,8 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 								strokeWidth={1}
 								size={15}
 								className={`${
-									isLiked ? 'fill-sky-400' : ''
-								} hover:fill-sky-400`}
+									isLiked ? 'fill-info' : ''
+								} hover:fill-info-hover`}
 								aria-hidden="true"
 							/>
 							<span className="text-sm" aria-live="polite">
@@ -231,7 +231,7 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 								<Trash
 									size={15}
 									strokeWidth={1}
-									className="hover:fill-red-300"
+									className="hover:fill-error"
 									aria-hidden="true"
 								/>
 							</Button>

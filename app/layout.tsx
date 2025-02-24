@@ -46,8 +46,7 @@ export default async function RootLayout({
 	return (
 		<html lang="en">
 			<body
-				// className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-				className="background text"
+			// className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
 				<RootLayoutClient userSession={user as unknown as User}>
 					{children}

@@ -241,7 +241,7 @@ const PostContent = ({
 
 	return (
 		<article
-			className={`post-content ${
+			className={`post-content padding-content ${
 				hideBreadcrumb ? 'hide-breadcrumb' : ''
 			} relative`}
 		>
@@ -267,7 +267,7 @@ const PostContent = ({
 				</section>
 			)}
 
-			<section className="prose lg:prose-2xl w-full mx-auto md:border-2 border-highlight mt-4 main-content grid relative">
+			<section className="prose lg:prose-2xl w-full mx-auto md:border mt-4 main-content grid relative">
 				<ScrollArea className="px-4">
 					<ShowPostContent data={data} />
 				</ScrollArea>

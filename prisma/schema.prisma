@@ -48,7 +48,7 @@ model user {
     likes         like[]
     savedPosts    savedPost[]
     socialMediaId String?        @unique
-    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id])
+    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id], onDelete: Cascade)
     notifications notification[] @relation("UserNotification") // Notifikasi yang diterima
     actions       notification[] @relation("ActorNotification") // Notifikasi yang dipicu oleh user
 }

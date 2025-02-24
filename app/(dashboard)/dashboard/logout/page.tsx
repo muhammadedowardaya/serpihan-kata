@@ -13,12 +13,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useSetAtom } from 'jotai';
+import { userAtom } from '@/jotai';
 
 const LogoutPage = () => {
 	const router = useRouter();
 
+	const setUser = useSetAtom(userAtom);
+
 	const handleLogout = () => {
-		signOut();
+		signOut().then(() => setUser(null));
 	};
 
 	return (

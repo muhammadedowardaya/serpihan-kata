@@ -55,22 +55,13 @@ export const PostList = ({
 		placeholderData: posts, // Gunakan data awal sebagai placeholder
 	});
 
-	if (!getPosts.isPending && getPosts.data.length === 0) {
-		return <Loader text="Loading posts..." />;
-	}
-
 	return (
 		<ul className={className}>
 			{getPosts.isPending ? (
-				<Loader />
+				<Loader text="Loading posts..." />
 			) : getPosts.data && getPosts.data.length > 0 ? (
 				getPosts.data.map((post: Post) => (
-					<PostCard
-						key={post.id}
-						post={post}
-						size={sm ? 'sm' : xs ? 'md' : 'sm'}
-						fullWidth={!sm && xs}
-					/>
+					<PostCard key={post.id} post={post} size={'sm'} />
 				))
 			) : (
 				<p className="text-center">No posts</p>

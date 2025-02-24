@@ -15,6 +15,12 @@ export const showReplyInputAtom = atom<{
 	[key: string]: boolean;
 }>({});
 
+export const alertAuthAtom = atom<{
+	title: string;
+	description?: React.ReactNode;
+	type: 'error' | 'success' | 'warning' | 'info';
+	textConfirmButton: string;
+} | null>(null);
 export const showModalAuthAtom = atom(false);
 export const hasAccountAtom = atom(true);
 

@@ -16,20 +16,20 @@ const SearchForm = ({
 		<Form
 			action="/posts"
 			scroll={false}
-			className={`search-form flex gap-x-2 sm:gap-4 ${className}`}
+			className={`search-form flex items-center gap-x-2 sm:gap-4 ${className}`}
 		>
 			<Input
 				type="text"
 				defaultValue={query}
 				placeholder="Search posts..."
-				className="h-full text-sm sm:text-base background-highlight"
+				className="h-full text-sm sm:text-base "
 				name="query"
 			/>
 			{query && <SearchFormReset />}
 			<Button
 				type="submit"
 				variant="ghost"
-				className="px-3 py-1 h-full background-highlight text-dark hover:background-highlight hover:text-dark"
+				className="px-3 py-1 h-full btn-primary"
 			>
 				<Search strokeWidth={2} />
 			</Button>

@@ -18,7 +18,7 @@ class InvalidCredentialsError extends CredentialsSignin {
 }
 
 export default {
-	debug: true,
+	debug: false,
 	providers: [
 		GitHub,
 		Google,
@@ -76,102 +76,37 @@ export default {
 	],
 	callbacks: {
 		async signIn({ account, profile, credentials }) {
-			const email =
-				(profile?.email as string) || (credentials?.email as string);
+			const email = profile?.email || (credentials?.email as string);
+			const existingUser = await prisma.user.findUnique({ where: { email } });
 
-			const existingUser = await prisma.user.findUnique({
-				where: { email },
-			});
-
-			if (account?.provider !== 'credentials') {
-				if (existingUser) {
-					// Cek apakah akun provider sudah terkait
-					const providerAccount = await prisma.account.findFirst({
-						where: {
-							userId: existingUser.id,
-							provider: account?.provider,
-						},
-					});
-
-					if (!providerAccount) {
-						// Tambahkan akun provider ke tabel account
-						await prisma.account.create({
-							data: {
-								userId: existingUser.id,
-								type: account?.type as string,
-								provider: account?.provider as string,
-								providerAccountId: account?.providerAccountId as string,
-								access_token: account?.access_token,
-								refresh_token: account?.refresh_token,
-								expires_at: account?.expires_at,
-							},
-						});
-					}
-
-					// **Pastikan socialMediaId diisi dengan email**
-					if (!existingUser.socialMediaId) {
-						await prisma.socialMedia.create({
-							data: {
-								id: email,
-							},
-						});
-
-						await prisma.user.update({
-							where: { id: existingUser.id },
-							data: { socialMediaId: email },
-						});
-					}
-
-					return true; // Login berhasil
-				}
-
-				return true;
-			}
-
-			// Jika menggunakan credentials
-			if (account?.provider === 'credentials' && existingUser) {
-				// Tambahkan akun credentials jika belum ada
-				const existingAccount = await prisma.account.findFirst({
+			if (existingUser) {
+				// Cek apakah akun provider sudah ada di tabel Account
+				const providerAccount = await prisma.account.findFirst({
 					where: {
 						userId: existingUser.id,
-						provider: 'credentials',
+						provider: account?.provider,
 					},
 				});
 
-				if (!existingAccount) {
-					try {
-						await prisma.account.upsert({
-							where: {
-								userId: existingUser.id, // Cari berdasarkan userId
-							},
-							update: {
-								provider: 'credentials',
-								providerAccountId: `credentials-${existingUser.email}`,
-							},
-							create: {
-								user: {
-									connect: { id: existingUser.id }, // Hubungkan dengan user yang sudah ada
-								},
-								type: 'credentials',
-								provider: 'credentials',
-								providerAccountId: `credentials-${existingUser.email}`,
-							},
-						});
-					} catch (error) {
-						if (error instanceof Error) {
-							console.error(error.message);
-						}
-
-						return false;
-					}
+				if (!providerAccount) {
+					// Jika akun provider belum terhubung, hubungkan ke user yang sudah ada
+					await prisma.account.create({
+						data: {
+							user: { connect: { id: existingUser.id } },
+							provider: account?.provider as string,
+							providerAccountId: profile?.sub || `credentials-${email}`,
+							type: account?.type as string,
+							access_token: account?.access_token,
+							expires_at: account?.expires_at,
+						},
+					});
 				}
 
-				return true;
+				return true; // Login berhasil
 			}
 
-			return true; // Lanjutkan proses login
+			return true;
 		},
-
 		jwt({ token, user, trigger, session }) {
 			if (user) {
 				token.id = user.id;

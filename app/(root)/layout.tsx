@@ -15,16 +15,14 @@ export default async function Layout({
 	return (
 		<QueryProvider>
 			<SessionProvider>
-				<Theme>
-					<main className="relative root-layout bg-primary">
-						<div className="root-navbar sticky top-0 z-50 w-full padding-content">
-							<Navbar className="h-full bg-transparent" />
-						</div>
-						<ScrollArea className="root-content">
-							<Container className="relative">{children}</Container>
-						</ScrollArea>
-					</main>
-				</Theme>
+				<main className="relative bg-background text-background-foreground root-layout">
+					<div className="root-navbar sticky top-0 z-50 w-full padding-content">
+						<Navbar className="h-full bg-transparent" />
+					</div>
+					<ScrollArea className="root-content">
+						<Container className="relative">{children}</Container>
+					</ScrollArea>
+				</main>
 			</SessionProvider>
 		</QueryProvider>
 	);

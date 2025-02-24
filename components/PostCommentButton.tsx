@@ -95,7 +95,7 @@ export const PostCommentButton = ({
 					</DialogHeader>
 
 					{/* Bagian yang memiliki scroll */}
-					<section className="border border-slate-400 rounded-md p-4 pr-0 bg-white overflow-hidden grid flex-1">
+					<section className="border-y border-slate-400 rounded-md pl-4 pr-0 overflow-hidden grid flex-1">
 						<ScrollArea className="pr-5">
 							<CommentList
 								comments={data.comments as unknown as Comment[]}
@@ -187,7 +187,7 @@ export const PostCommentButton = ({
 					</DrawerDescription>
 				</DrawerHeader>
 
-				<section className="border border-slate-400 rounded-md pl-2 pt-2 pr-0 bg-white overflow-hidden grid flex-1">
+				<section className="border-y border-slate-400 rounded-md pl-2 pt-2 pr-0 overflow-hidden grid flex-1">
 					<ScrollArea className="pr-4">
 						<CommentList
 							comments={data.comments as unknown as Comment[]}

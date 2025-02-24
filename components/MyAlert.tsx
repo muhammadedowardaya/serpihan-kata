@@ -98,7 +98,10 @@ export const MyAlert = ({
 					)}
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogAction asChild>
+					<AlertDialogAction
+						asChild
+						className="bg-transparent hover:bg-transparent"
+					>
 						<div className="flex items-center gap-3">
 							{textCancelButton && (
 								<Button
@@ -119,7 +122,7 @@ export const MyAlert = ({
 										: type === 'info'
 										? 'button-info'
 										: 'button-warning'
-								}`}
+								} w-max`}
 								onClick={onConfirm}
 								disabled={isLoadingConfirm}
 							>

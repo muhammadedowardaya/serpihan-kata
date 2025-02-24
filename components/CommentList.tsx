@@ -39,7 +39,7 @@ export const CommentList = ({
 	}, [commentId, getComments.data]);
 
 	return (
-		<div className="flex flex-col gap-y-4 pb-[20px] relative">
+		<div className="flex flex-col gap-y-4 py-[10px] relative">
 			{getComments.data && getComments.data?.length > 0 ? (
 				getComments.data?.map((comment) => {
 					return <CommentItem key={comment.id} comment={comment} />;

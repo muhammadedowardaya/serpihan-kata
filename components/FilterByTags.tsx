@@ -49,42 +49,49 @@ export const FilterByTags = ({
 	// 		: 'Select Tag...';
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button className={`${className}`} variant="ghost">
-					<Filter
-						className={`h-full${filterByTags.length > 0 ? 'fill-black' : ''}`}
-					/>
+		<div className="flex flex-wrap items-center gap-2">
+			<Popover open={open} onOpenChange={setOpen}>
+				<PopoverTrigger asChild>
+					<Button className={`${className}`} variant="ghost">
+						<Filter
+							className={`h-full${filterByTags.length > 0 ? 'fill-black' : ''}`}
+						/>
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-[250px] p-0">
+					<Command>
+						<CommandInput placeholder="Search tag..." />
+						<CommandList>
+							<CommandEmpty>No Tags found.</CommandEmpty>
+							<CommandGroup>
+								{tags.map((tag) => {
+									const isSelected = filterByTags.some((t) => t.id === tag.id);
+									return (
+										<CommandItem
+											key={tag.id}
+											value={tag.value}
+											onSelect={() => toggleTagSelection(tag)}
+										>
+											<Check
+												className={cn(
+													'mr-2 h-4 w-4',
+													isSelected ? 'opacity-100' : 'opacity-0'
+												)}
+											/>
+											{tag.label}
+										</CommandItem>
+									);
+								})}
+							</CommandGroup>
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
+			{filterByTags.length > 0 && (
+				<Button variant="secondary" onClick={() => setFilterByTags([])}>
+					Reset Filter
 				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-[250px] p-0">
-				<Command>
-					<CommandInput placeholder="Search tag..." />
-					<CommandList>
-						<CommandEmpty>No Tags found.</CommandEmpty>
-						<CommandGroup>
-							{tags.map((tag) => {
-								const isSelected = filterByTags.some((t) => t.id === tag.id);
-								return (
-									<CommandItem
-										key={tag.id}
-										value={tag.value}
-										onSelect={() => toggleTagSelection(tag)}
-									>
-										<Check
-											className={cn(
-												'mr-2 h-4 w-4',
-												isSelected ? 'opacity-100' : 'opacity-0'
-											)}
-										/>
-										{tag.label}
-									</CommandItem>
-								);
-							})}
-						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
+			)}
+		</div>
 	);
 };

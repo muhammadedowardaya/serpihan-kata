@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable @next/next/no-img-element */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
 	Card,
@@ -23,6 +23,9 @@ import {
 	MenubarTrigger,
 } from './ui/menubar';
 import { Button } from './ui/button';
+import { filterByTagsAtom } from '@/jotai';
+import { useAtom } from 'jotai';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const PostCard = ({
 	post,
@@ -50,6 +53,13 @@ const PostCard = ({
 		user,
 	} = post;
 
+	const [filterByTags] = useAtom(filterByTagsAtom);
+	const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+	useEffect(() => {
+		setSelectedTags(filterByTags.map(({ value }) => value));
+	}, [filterByTags]);
+
 	return (
 		<Card
 			className={`w-full ${
@@ -58,9 +68,9 @@ const PostCard = ({
 					: fullWidth
 					? 'max-w-full'
 					: 'max-w-[300px]'
-			} border-2 border-[var(--accent)] bg-transparent h-max break-inside-avoid relative overflow-hidden`}
+			} border m-[2px] p-[2px] h-max break-inside-avoid relative overflow-hidden`}
 		>
-			<CardHeader className="space-y-2 pb-2">
+			<CardHeader className="space-y-2 pb-2 px-4 pt-4">
 				{mode === 'normal' && (
 					<div
 						className={`flex justify-between gap-2 ${
@@ -69,11 +79,7 @@ const PostCard = ({
 					>
 						<p>{timeAgo(createdAt.toString())}</p>
 						<div className="flex items-center gap-x-1">
-							<EyeIcon
-								className={`${
-									size === 'md' ? 'size-6' : 'size-5'
-								} text-slate-600`}
-							/>
+							<EyeIcon className={`${size === 'md' ? 'size-6' : 'size-5'}`} />
 							<span className={`${size === 'md' ? 'text-base' : 'text-xs'}`}>
 								{views}
 							</span>
@@ -165,41 +171,32 @@ const PostCard = ({
 						<Link href={`/${slug}`}>
 							<h3
 								className={`font-bold ${
-									size === 'md' ? 'text-xl' : 'text-base'
+									size === 'md' ? 'text-xl' : 'text-base md:text-lg'
 								}`}
 							>
 								{title}
 							</h3>
 						</Link>
 					</div>
-					<Link href={`/user/${user?.username}`} className="shrink-0">
-						{user && user.image ? (
-							<Image
-								src={user.image}
-								alt={user.username + ' image'}
-								width={38}
-								height={38}
-								className={`rounded-full shrink-0 ${
-									size === 'md' ? 'w-[48px] h-[48px]' : 'w-[38px] h-[38px]'
-								} border`}
+					<Link
+						href={`/user/${user?.username}`}
+						className="shrink-0 w-10 h-10 border border-slate-300 rounded-full"
+					>
+						<Avatar className="w-full h-full">
+							<AvatarImage
+								src={user?.image as string}
+								alt={user?.name as string}
 							/>
-						) : (
-							<Image
-								src="https://placehold.co/48x48"
-								alt="placeholder"
-								width={38}
-								height={38}
-								className={`rounded-full shrink-0 ${
-									size === 'md' ? 'w-[48px] h-[48px]' : 'w-[38px] h-[38px]'
-								} border`}
-							/>
-						)}
+							<AvatarFallback>
+								{user?.username.slice(0, 2).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
 					</Link>
 				</div>
 			</CardHeader>
-			<CardContent>
+			<CardContent className="px-4">
 				<Link href={`/post/${slug}`}>
-					<p className={`${size === 'md' ? 'text-base' : 'text-xs'}`}>
+					<p className={`${size === 'md' ? 'text-lg' : 'text-xs md:text-sm'}`}>
 						{description.length > 100
 							? `${description.slice(0, 100)}...`
 							: description}
@@ -207,21 +204,25 @@ const PostCard = ({
 					<img
 						src={thumbnail as string}
 						alt="thumbnail"
-						className={`mt-4 w-full object-cover object-center border-4 border-b-8 border-white ${
-							size === 'md' ? 'max-h-[250px]' : 'max-h-[100px]'
+						className={`mt-4 w-full object-cover object-center border shadow-md ${
+							size === 'md' ? 'max-h-[250px]' : 'max-h-[150px]'
 						}`}
 					/>
 				</Link>
 			</CardContent>
-			<CardFooter className="flex flex-col gap-6 mt-[5px]">
+			<CardFooter className="px-4 pb-4 flex flex-col gap-6 mt-[5px]">
 				{postTag.length > 0 && (
 					<div className={`w-full ${size === 'md' ? 'text-sm' : 'text-xs'}`}>
 						<h3>Tags :</h3>
-						<div className="flex items-center gap-1 flex-wrap mt-2">
-							{postTag.map(({ tag: { id, label } }) => (
+						<div className="flex items-center gap-x-2 gap-y-1 flex-wrap mt-2">
+							{postTag.map(({ tag: { id, label, value } }) => (
 								<span
 									key={id}
-									className="px-2 py-[1px] inline-block select-none bg-[var(--accent)] text-white rounded-full"
+									className={`${
+										selectedTags.includes(value)
+											? 'bg-highlight text-highlight-foreground'
+											: ''
+									} px-2 pb-[1px] inline-block select-none border rounded-full`}
 								>
 									{label}
 								</span>

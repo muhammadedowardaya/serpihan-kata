@@ -14,106 +14,135 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  --breakpoint-*: initial;
-  --breakpoint-xxs: 360px;
-  --breakpoint-xs: 400px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 1024px;
-  --breakpoint-lg: 1280px;
+:root {
+	--background: oklch(92% 0.0693 98.63);
+	--background-hover: oklch(89% 0.0693 98.63);
+	--background-foreground: oklch(34.4% 0.0287 174.85);
 
-  --font-*: initial;
-  --font-quicksand: Quicksand, sans-serif;
-  --font-satisfy: Satisfy, serif;
-  --font-inter: Inter, serif;
+	--primary: oklch(36.6% 0.0137 235.23);
+	--primary-hover: oklch(32.6% 0.0167 235.23);
+	--primary-foreground: oklch(80.11% 0.0937 90.5);
 
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+	--secondary: oklch(97.61% 0.1191 108.42);
+	--secondary-hover: oklch(94% 0.1301 108.42);
+	--secondary-foreground: oklch(40.63% 0.0305 211.96);
 
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+	--highlight: oklch(65% 0.22 150);
+	--highlight-hover: oklch(60% 0.23 150);
+	--highlight-foreground: oklch(100% 0 0);
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+	--accent: oklch(58.25% 0.0941 209.11);
+	--accent-hover: oklch(55% 0.1 209.11);
+	--accent-foreground: oklch(92.74% 0.1133 120.71);
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+	--success: oklch(60% 0.18 180);
+	--success-hover: oklch(55% 0.19 180);
+	--success-foreground: oklch(100% 0 0);
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-text: hsl(var(--secondary-text));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+	--warning: oklch(80% 0.15 90);
+	--warning-hover: oklch(75% 0.16 90);
+	--warning-foreground: oklch(0% 0 0);
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-hover: hsl(var(--accent-hover));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+	--error: oklch(58% 0.22 30);
+	--error-hover: oklch(53% 0.23 30);
+	--error-foreground: oklch(100% 0 0);
 
-  --color-highlight: hsl(var(--highlight));
-  --color-highlight-hover: hsl(var(--highlight-hover));
+	--info: oklch(65% 0.18 220);
+	--info-hover: oklch(58% 0.2 220);
+	--info-foreground: oklch(100% 0 0);
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-
-  --color-sidebar: hsl(var(--sidebar-background));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
+	--destructive: oklch(50% 0.25 25);
+	--destructive-hover: oklch(45% 0.27 25);
+	--destructive-foreground: oklch(100% 0 0);
 }
 
 @theme {
-  --color-primary: oklch(97.2% 0.005 100.9);
-  --color-primary-foreground: oklch(22.9% 0.01 270);
-  --color-secondary: oklch(22.9% 0.01 270);
-  --color-secondary-text: oklch(49.7% 0.01 270);
-  --color-secondary-foreground: oklch(100% 0 0);
-  --color-highlight: oklch(76.1% 0.14 61.1);
-  --color-highlight-hover: oklch(68.5% 0.15 61.1);
-  --color-accent: oklch(35.6% 0.06 251.5);
-  --color-accent-hover: oklch(27.1% 0.07 251.5);
-  --color-accent-foreground: oklch(100% 0 0);
-  --color-success: oklch(59.3% 0.2 177.8);
-  --color-warning: oklch(83.7% 0.17 95.1);
-  --color-error: oklch(60.5% 0.25 31.2);
+	--breakpoint-*: initial;
+	--breakpoint-xxs: 360px;
+	--breakpoint-xs: 400px;
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 1024px;
+	--breakpoint-lg: 1280px;
+
+	--font-*: initial;
+	--font-quicksand: 'Quicksand', sans-serif;
+	--font-satisfy: 'Satisfy', serif;
+	--font-inter: 'Inter', serif;
+
+	/* --color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground)); */
+	--color-popover: var(--background);
+
+	--color-background: var(--background);
+	--color-background-foreground: var(--background-foreground);
+
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-foreground: var(--primary-foreground);
+
+	--color-secondary: var(--secondary);
+	--color-secondary-hover: var(--secondary-hover);
+	--color-secondary-foreground: var(--secondary-foreground);
+
+	--color-accent: var(--accent);
+	--color-accent-hover: var(--accent-hover);
+	--color-accent-foreground: var(--accent-foreground);
+
+	--color-highlight: var(--highlight);
+	--color-highlight-foreground: var(--highlight-foreground);
+	--color-highlight-hover: var(--highlight-hover);
+
+	--color-destructive: var(--destructive);
+	--color-destructive-hover: var(--destructive-hover);
+	--color-destructive-foreground: var(--destructive-foreground);
+
+	--color-info: var(--info);
+	--color-info-hover: var(--info-hover);
+	--color-info-foreground: var(--info-foreground);
+
+	--color-success: var(--success);
+	--color-success-hover: var(--success-hover);
+	--color-success-foreground: var(--success-foreground);
+
+	--color-warning: var(--warning);
+	--color-warning-hover: var(--warning-hover);
+	--color-warning-foreground: var(--warning-foreground);
+
+	--color-error: var(--error);
+	--color-error-hover: var(--error-hover);
+	--color-error-foreground: var(--error-foreground);
+
+	/* --color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+
+	--color-chart-1: hsl(var(--chart-1));
+	--color-chart-2: hsl(var(--chart-2));
+	--color-chart-3: hsl(var(--chart-3));
+	--color-chart-4: hsl(var(--chart-4));
+	--color-chart-5: hsl(var(--chart-5));
+
+	--color-sidebar: hsl(var(--sidebar-background));
+	--color-sidebar-foreground: hsl(var(--sidebar-foreground));
+	--color-sidebar-primary: hsl(var(--sidebar-primary));
+	--color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+	--color-sidebar-accent: hsl(var(--sidebar-accent));
+	--color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+	--color-sidebar-border: hsl(var(--sidebar-border));
+	--color-sidebar-ring: hsl(var(--sidebar-ring));
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
+
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out; */
 }
 
 /*
@@ -124,89 +153,136 @@
   If we ever want to remove these styles, we need to add an explicit border
   color utility to any element that depends on these defaults.
 */
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-}
 
-@utility {
-  .button-warning {
-    @apply bg-yellow-400 text-black hover:bg-yellow-500!;
-  }
+/* *,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+	border-color: var(--color-gray-200, currentColor);
+} */
 
-  .button-error {
-    @apply bg-destructive text-white hover:bg-red-600!;
-  }
+/* body {
+	@apply bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-inter font-normal text-xs sm:text-sm md:text-base lg:text-lg;
+} */
 
-  .button-success {
-    @apply bg-emerald-600 text-slate-100 hover:bg-emerald-700!;
-  }
+.button-warning {
+	background-color: var(--color-warning);
+	color: var(--warning-foreground);
 
-  .button-info {
-    @apply bg-blue-500 text-white hover:bg-blue-600!;
-  }
-
-  .navbar-item {
-    @apply flex items-center text-sm gap-3 p-2 rounded hover:bg-gray-200 text-slate-700 font-medium;
-  }
-
-  .navbar-item svg.lucide {
-    @apply w-5 h-5;
-  }
-
-  .padding-content {
-    @apply px-[30px] xxs:px-[30px] xs:px-[40px] sm:px-[60px] md:px-[50px];
-  }
-
-  .btn-primary {
-    @apply bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[var(--color-accent-hover)];
-  }
-
-  .btn-secondary {
-    @apply bg-[var(--color-highlight)] text-[var(--color-secondary)] hover:bg-[var(--color-highlight-hover)];
-  }
-
-  .btn-tertiary {
-    @apply bg-transparent text-[var(--color-secondary)] border border-[var(--color-secondary-text)] hover:bg-gray-300;
-  }
-}
-
-@layer base {
-	* {
-		@apply border-border;
-	}
-	body {
-		@apply bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-inter font-normal text-xs sm:text-sm md:text-base lg:text-lg;
+	&:hover {
+		background-color: var(--color-warning-hover);
 	}
 }
 
-.ql-editor p img {
-	margin: 10px auto;
-	max-height: 300px;
+.button-error {
+	background-color: var(--destructive);
+	color: var(--destructive-foreground);
+
+	&:hover {
+		background-color: var(--destructive-hover);
+	}
 }
 
-.ql-code-block-container select {
-	background-color: #171717;
-	border: 1px solid #eaeaea;
-	padding: 0px 4px;
+.button-success {
+	background-color: var(--color-success);
+	color: var(--color-success-foreground);
+
+	&:hover {
+		background-color: var(--color-success-hover);
+	}
 }
 
-.custom-tab {
-	margin-left: 40px;
+.button-info {
+	background-color: var(--color-info);
+	color: var(--color-info-foreground);
+
+	&:hover {
+		background-color: var(--color-info-hover);
+	}
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	/* font-family: "Satisfy", serif; */
-	font-family: 'Quicksand', sans-serif;
-	font-weight: 600;
+.navbar-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border-radius: 0.25rem;
+	transition: background-color 0.2s ease-in-out;
+	color: #374151;
+	font-weight: 500;
+}
+
+.navbar-item svg.lucide {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+@layer utilities {
+	.padding-content {
+		@apply px-[30px] xxs:px-[30px] xs:px-[40px] sm:px-[60px] md:px-[50px];
+	}
+}
+
+@layer base {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: 'Quicksand', sans-serif;
+		font-weight: 600;
+	}
+
+	.btn-primary {
+		background-color: var(--primary);
+		color: var(--primary-foreground);
+
+		&:hover {
+			background-color: var(--primary-hover);
+		}
+	}
+
+	.btn-secondary {
+		background-color: var(--secondary);
+		color: var(--secondary-foreground);
+
+		&:hover {
+			background-color: var(--secondary-hover);
+		}
+	}
+
+	.ql-editor p img {
+		margin: 10px auto;
+		max-height: 300px;
+	}
+
+	.ql-code-block-container select {
+		background-color: #171717;
+		border: 1px solid #eaeaea;
+		padding: 0px 4px;
+	}
+
+	.custom-tab {
+		margin-left: 40px;
+	}
+}
+
+@keyframes accordion-down {
+	from {
+		height: 0;
+	}
+	to {
+		height: var(--radix-accordion-content-height);
+	}
+}
+
+@keyframes accordion-up {
+	from {
+		height: var(--radix-accordion-content-height);
+	}
+	to {
+		height: 0;
+	}
 }
