@@ -78,6 +78,7 @@
 	--color-popover: hsl(var(--popover));
 	--color-popover-foreground: hsl(var(--popover-foreground)); */
 	--color-popover: var(--background);
+	--color-popover-foreground: hsl(var(--background-foreground));
 
 	--color-background: var(--background);
 	--color-background-foreground: var(--background-foreground);

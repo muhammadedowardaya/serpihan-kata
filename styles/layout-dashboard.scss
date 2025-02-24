@@ -1,0 +1,45 @@
+@reference "../app/globals.css";
+
+@layer utilities {
+	.layout-dashboard {
+		max-height: 100vh;
+		flex: 1;
+		overflow: hidden;
+		display: grid;
+		grid-template-areas:
+			'navbar'
+			'breadcrumb'
+			'content';
+		grid-template-columns: 1fr;
+		grid-template-rows: 50px 40px calc(100vh - 90px);
+
+		@media (min-width: 1024px) {
+			grid-template-areas:
+				'breadcrumb'
+				'content';
+			grid-template-rows: 50px calc(100vh - 50px);
+		}
+
+		.navbar-dashboard {
+			grid-area: navbar;
+			display: flex;
+			align-items: center;
+
+			@media (min-width: 1024px) {
+				display: none;
+			}
+		}
+
+		.breadcrumb-dashboard {
+			grid-area: breadcrumb;
+			display: flex;
+			align-items: center;
+			background-color: var(--color-primary);
+			color: var(--color-primary-foreground);
+		}
+
+		.content-dashboard {
+			grid-area: content;
+		}
+	}
+}

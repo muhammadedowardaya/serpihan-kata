@@ -1,0 +1,44 @@
+@reference "../app/globals.css";
+
+.edit-form__profile {
+	padding: 20px;
+
+	@media (min-width: 1024px) {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: auto;
+		gap: 40px;
+		padding: 40px;
+	}
+
+	.profile-input {
+		break-inside: avoid;
+		margin: 0 10px 20px 10px;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.social-media {
+		@media (min-width: 1024px) {
+			margin-top: 60px;
+		}
+
+		.social-media__list {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+
+			@media (min-width: 1024px) {
+				padding: 10px;
+				gap: 20px;
+			}
+
+			.social-media__input {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+			}
+		}
+	}
+}

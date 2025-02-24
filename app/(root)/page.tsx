@@ -52,7 +52,7 @@ export default async function Home() {
 					<Link href="/dashboard/posts/create">
 						<Button
 							size="lg"
-							className="w-full max-w-[200px] xxs:max-w-[300px] block font-quicksand font-bold text-base flex flex-col xxs:flex-row items-center justify-center gap-2 px-6 py-4 rounded-lg"
+							className="w-full max-w-[200px] xxs:max-w-[300px] block font-quicksand font-bold text-base flex flex-col xxs:flex-row h-max xxs:h-full py-2 items-center justify-center gap-0 xxs:gap-2 rounded-lg"
 						>
 							<Rocket className="w-[40px]" strokeWidth={2} />
 							<span>Mulai Menulis</span>
@@ -62,7 +62,7 @@ export default async function Home() {
 						<Button
 							size="lg"
 							variant="secondary"
-							className="w-full max-w-[200px] xxs:max-w-[300px] block font-quicksand font-bold text-base flex flex-col xxs:flex-row items-center justify-center gap-2 px-6 py-4 rounded-lg"
+							className="w-full max-w-[200px] xxs:max-w-[300px] block font-quicksand font-bold text-base flex flex-col xxs:flex-row h-max xxs:h-full py-2 items-center justify-center gap-0 xxs:gap-2 rounded-lg"
 						>
 							<ScanSearch className="w-[40px]" strokeWidth={2} />
 							<span>Jelajahi Tulisan</span>

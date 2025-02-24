@@ -14,10 +14,10 @@ import {
 } from 'lucide-react';
 
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { User } from '@/types';
 import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { User } from 'next-auth';
 
 // Menu items.
 const adminItems = [
@@ -84,7 +84,7 @@ const userItems = [
 		url: '/dashboard/logout',
 		icon: LogOut,
 	},
-]; 
+];
 
 export const SidebarMenuItemList = ({
 	session,
@@ -104,7 +104,7 @@ export const SidebarMenuItemList = ({
 			// });
 			return response.data.user;
 		},
-        enabled: !!session?.user
+		enabled: !!session?.user,
 	});
 
 	return (
@@ -118,9 +118,9 @@ export const SidebarMenuItemList = ({
 								className={`${
 									pathname === item.url ||
 									pathname.includes(`${item.url.split('/')[2]}/`)
-										? 'bg-gray-200 text-black'
+										? 'bg-primary text-primary-foreground'
 										: ''
-								} flex items-center space-x-2 p-2 rounded hover:bg-gray-200`}
+								} flex items-center space-x-2 p-2 rounded`}
 							>
 								<item.icon />
 								<span>{item.title}</span>
@@ -137,9 +137,9 @@ export const SidebarMenuItemList = ({
 								className={`${
 									pathname === item.url ||
 									pathname.includes(`${item.url.split('/')[2]}/`)
-										? 'bg-gray-200 text-black'
+										? 'bg-primary text-primary-foreground'
 										: ''
-								} flex items-center space-x-2 p-2 rounded hover:bg-gray-200`}
+								} flex items-center space-x-2 p-2 rounded hover:bg-primary hover:text-primary-foreground`}
 							>
 								<item.icon />
 								<span>{item.title}</span>

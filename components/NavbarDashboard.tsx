@@ -25,7 +25,7 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@/jotai';
 import { useRouter } from 'next/navigation';
 
-const Navbar = ({ className }: { className?: string }) => {
+const NavbarDashboard = ({ className }: { className?: string }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const user = useAtomValue(userAtom);
@@ -184,4 +184,4 @@ const Navbar = ({ className }: { className?: string }) => {
 	);
 };
 
-export default Navbar;
+export default NavbarDashboard;

@@ -24,7 +24,6 @@ import { z } from 'zod';
 import { userSchema } from '@/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { User } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Toast } from '@/lib/sweetalert';
@@ -32,7 +31,10 @@ import Swal from 'sweetalert2';
 import { editProfileAtom } from '@/jotai';
 import { useAtom } from 'jotai';
 
-const EditFromProfile = () => {
+import '@/styles/edit-form-profile.scss';
+import { User } from 'next-auth';
+
+const EditFormProfile = () => {
 	const { data: session, update } = useSession();
 
 	const [, setEditProfile] = useAtom(editProfileAtom);
@@ -198,219 +200,223 @@ const EditFromProfile = () => {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-8 w-full max-w-[400px] pt-6 pb-20"
+				className="edit-form__profile w-full max-w-[400px] md:max-w-full relative"
 			>
-				{/* Profile Picture Field */}
-				<FormItem>
-					<FormLabel>Profile Picture</FormLabel>
-					<div className="flex justify-center items-center gap-2 pt-1 pb-4">
-						{getUser.isPending ? (
-							<Skeleton className="w-[100px] h-[100px] rounded-full shrink-0" />
-						) : previewImage || getUser.data?.image ? (
-							<div className="w-[100px] h-[100px] shrink-0">
-								<Image
-									src={
-										(previewImage as string) || (getUser.data?.image as string)
-									}
-									alt="Profile Preview"
-									width={100}
-									height={100}
-									className="border border-black w-[100px] h-[100px] shrink-0 rounded-full object-cover"
-								/>
-							</div>
-						) : (
-							<div className="w-[100px] h-[100px] overflow-hidden border border-black rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-								<span>No Image</span>
-							</div>
-						)}
-					</div>
-					<FormControl>
-						<Input
-							type="file"
-							accept="image/*"
-							onChange={handleFileChange}
-							className="text-sm h-max"
-						/>
-					</FormControl>
-					<FormDescription>
-						Upload a new profile picture. Supported formats: JPG, PNG.
-					</FormDescription>
-				</FormItem>
-
-				{/* Name Field */}
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Name</FormLabel>
-							<FormControl>
-								<Input placeholder="Type your name" {...field} />
-							</FormControl>
-							<FormDescription>
-								This is your public display name.
-							</FormDescription>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				{/* Username Field */}
-				<FormField
-					control={form.control}
-					name="username"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Username</FormLabel>
-							<FormControl>
-								<Input placeholder="Type your username" {...field} />
-							</FormControl>
-							<FormDescription>This is your public username.</FormDescription>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				{/* Bio Field */}
-				<FormField
-					control={form.control}
-					name="bio"
-					render={({ field }) => (
-						<FormItem className="relative">
-							<FormLabel>Bio</FormLabel>
-							<FormControl>
-								<Textarea
-									className="resize-none h-[180px]"
-									placeholder="Type your bio"
-									maxLength={400}
-									{...field}
-								/>
-							</FormControl>
-							<FormDescription>This is your public bio.</FormDescription>
-							<FormMessage />
-
-							<div
-								className={`absolute top-0 right-0 ${
-									form.getValues('bio')?.length === 0 ? 'hidden' : ''
-								}`}
-							>
-								{form.getValues('bio')?.length}/400
-							</div>
-						</FormItem>
-					)}
-				/>
-
-				<fieldset className="space-y-4 px-6 pb-8 border border-slate-300">
-					<legend className="mx-auto mb-2 text-slate-600">
-						Social Media (Optional)
-					</legend>
-
-					{/* Instagram */}
+				<div>
+					{/* Name Field */}
 					<FormField
 						control={form.control}
-						name="socialMedia.instagram"
+						name="name"
 						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Instagram</FormLabel>
+							<FormItem className="profile-input">
+								<FormLabel>Name</FormLabel>
 								<FormControl>
-									<Input {...field} placeholder="Instagram URL" />
+									<Input placeholder="Type your name" {...field} />
 								</FormControl>
+								<FormDescription>
+									This is your public display name.
+								</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 
-					{/* TikTok */}
+					{/* Username Field */}
 					<FormField
 						control={form.control}
-						name="socialMedia.tiktok"
+						name="username"
 						render={({ field }) => (
-							<FormItem>
-								<FormLabel>TikTok</FormLabel>
+							<FormItem className="profile-input">
+								<FormLabel>Username</FormLabel>
 								<FormControl>
-									<Input {...field} placeholder="TikTok URL" />
+									<Input placeholder="Type your username" {...field} />
 								</FormControl>
+								<FormDescription>This is your public username.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
-
+					{/* Bio Field */}
 					<FormField
 						control={form.control}
-						name="socialMedia.facebook"
+						name="bio"
 						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Facebook</FormLabel>
+							<FormItem className="relative profile-input">
+								<FormLabel>Bio</FormLabel>
 								<FormControl>
-									<Input {...field} placeholder="Facebook URL" />
+									<Textarea
+										className="resize-none h-[180px]"
+										placeholder="Type your bio"
+										maxLength={400}
+										{...field}
+									/>
 								</FormControl>
+								<FormDescription>This is your public bio.</FormDescription>
 								<FormMessage />
+
+								<div
+									className={`absolute top-0 right-0 ${
+										form.getValues('bio')?.length === 0 ? 'hidden' : ''
+									}`}
+								>
+									{form.getValues('bio')?.length}/400
+								</div>
 							</FormItem>
 						)}
 					/>
+				</div>
+				<div>
+					<FormItem className="profile-input">
+						<FormLabel>Profile Picture</FormLabel>
+						<div className="flex justify-center items-center gap-2 pt-1 pb-4">
+							{getUser.isPending ? (
+								<Skeleton className="w-[100px] h-[100px] rounded-full shrink-0" />
+							) : previewImage || getUser.data?.image ? (
+								<div className="w-[100px] h-[100px] shrink-0">
+									<Image
+										src={
+											(previewImage as string) ||
+											(getUser.data?.image as string)
+										}
+										alt="Profile Preview"
+										width={100}
+										height={100}
+										className="border border-black w-[100px] h-[100px] shrink-0 rounded-full object-cover"
+									/>
+								</div>
+							) : (
+								<div className="w-[100px] h-[100px] overflow-hidden border border-black rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+									<span>No Image</span>
+								</div>
+							)}
+						</div>
+						<FormControl>
+							<Input
+								type="file"
+								accept="image/*"
+								onChange={handleFileChange}
+								className="text-sm h-max py-2 block"
+							/>
+						</FormControl>
+						<FormDescription>
+							Upload a new profile picture. Supported formats: JPG, PNG.
+						</FormDescription>
+					</FormItem>
 
-					<FormField
-						control={form.control}
-						name="socialMedia.github"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Github</FormLabel>
-								<FormControl>
-									<Input {...field} placeholder="Github URL" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					<fieldset className="social-media">
+						<legend className="mx-auto mb-2 text-slate-600">
+							Social Media (Optional)
+						</legend>
 
-					{/* YouTube */}
-					<FormField
-						control={form.control}
-						name="socialMedia.youtube"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>YouTube</FormLabel>
-								<FormControl>
-									<Input {...field} placeholder="YouTube URL" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+						<div className="social-media__list">
+							<FormField
+								control={form.control}
+								name="socialMedia.instagram"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>Instagram</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="Instagram URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-					<FormField
-						control={form.control}
-						name="socialMedia.linkedin"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Linkedin</FormLabel>
-								<FormControl>
-									<Input {...field} placeholder="Linkedin URL" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+							<FormField
+								control={form.control}
+								name="socialMedia.tiktok"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>TikTok</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="TikTok URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-					<FormField
-						control={form.control}
-						name="socialMedia.other"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Other</FormLabel>
-								<FormControl>
-									<Input {...field} placeholder="Other URL like your website" />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-				</fieldset>
+							<FormField
+								control={form.control}
+								name="socialMedia.facebook"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>Facebook</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="Facebook URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
+							<FormField
+								control={form.control}
+								name="socialMedia.github"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>Github</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="Github URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="socialMedia.youtube"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>YouTube</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="YouTube URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="socialMedia.linkedin"
+								render={({ field }) => (
+									<FormItem className="social-media__input">
+										<FormLabel>Linkedin</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="Linkedin URL" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="socialMedia.other"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Other</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												placeholder="Other URL like your website"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+					</fieldset>
+				</div>
 				<Button
 					type="submit"
 					disabled={mutation.isPending}
-					className="hover:bg-slate-100 bg-green-600 hover:text-green-600 hover:border hover:border-green-600"
+					variant="accent"
+					className="mb-10 mt-4 mr-2 ml-auto col-span-2"
 				>
 					{mutation.isPending ? 'Updating...' : 'Update Profile'}
 				</Button>
@@ -419,4 +425,4 @@ const EditFromProfile = () => {
 	);
 };
 
-export default EditFromProfile;
+export default EditFormProfile;

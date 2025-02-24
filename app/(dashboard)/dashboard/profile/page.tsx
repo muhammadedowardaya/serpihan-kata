@@ -1,6 +1,5 @@
 'use client';
 
-import { User } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -20,7 +19,6 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import EditFromProfile from '@/components/EditFormProfile';
 import { editProfileAtom } from '@/jotai';
 import { useAtom } from 'jotai';
 import Link from 'next/link';
@@ -31,6 +29,8 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { MyAlert } from '@/components/MyAlert';
 import Swal from 'sweetalert2';
 import { Toast } from '@/lib/sweetalert';
+import { User } from 'next-auth';
+import EditFormProfile from '@/components/EditFormProfile';
 
 const ProfilePage = () => {
 	const { data: session } = useSession();
@@ -110,7 +110,34 @@ const ProfilePage = () => {
 	}, [editProfile]);
 
 	return (
-		<div className="flex flex-col justify-center items-center relative">
+		<div className="flex flex-col justify-center items-center relative pt-10">
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						{editProfile ? (
+							<Button
+								variant="destructive"
+								className="sticky top-2 right-4 rounded-full z-40 ml-auto w-[40px] h-[40px]"
+								onClick={() => setEditProfile(false)}
+							>
+								<X size={20} className="p-0" />
+							</Button>
+						) : (
+							<Button
+								variant="secondary"
+								className="sticky top-2 right-4 rounded-full z-40 ml-auto w-[50px] h-[50px]"
+								onClick={() => setEditProfile(true)}
+							>
+								<Pencil size={20} />
+							</Button>
+						)}
+					</TooltipTrigger>
+					<TooltipContent side="left">
+						{editProfile ? 'Cancel Edit' : 'Edit Profile'}
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
+
 			<h1 className="text-2xl font-[700] mb-6">
 				{editProfile ? 'Edit Profile' : 'Profile'}
 			</h1>
@@ -291,35 +318,8 @@ const ProfilePage = () => {
 					)}
 				</Swiper>
 			) : (
-				<EditFromProfile />
+				<EditFormProfile />
 			)}
-
-			<TooltipProvider>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						{editProfile ? (
-							<Button
-								variant="ghost"
-								className="absolute top-0 right-0 rounded-full w-[50px] h-[50px]"
-								onClick={() => setEditProfile(false)}
-							>
-								<X size={20} />
-							</Button>
-						) : (
-							<Button
-								variant="ghost"
-								className="absolute top-0 right-0 rounded-full w-[50px] h-[50px]"
-								onClick={() => setEditProfile(true)}
-							>
-								<Pencil size={20} />
-							</Button>
-						)}
-					</TooltipTrigger>
-					<TooltipContent>
-						{editProfile ? 'Cancel Edit' : 'Edit Profile'}
-					</TooltipContent>
-				</Tooltip>
-			</TooltipProvider>
 
 			<MyAlert
 				open={showAlertWarning}

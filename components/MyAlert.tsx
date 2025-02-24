@@ -41,7 +41,7 @@ export const MyAlert = ({
 				<Button variant="outline">Show Dialog</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent
-				className={`bg-slate-900 border ${
+				className={`bg-slate-900 border w-[95vw] ${
 					type === 'warning'
 						? 'border-yellow-300'
 						: type === 'error'
@@ -92,7 +92,10 @@ export const MyAlert = ({
 						</div>
 					</AlertDialogTitle>
 					{description && (
-						<AlertDialogDescription className="text-slate-100 text-center pb-4">
+						<AlertDialogDescription
+							className="text-slate-100 text-center pb-4"
+							asChild
+						>
 							{description}
 						</AlertDialogDescription>
 					)}
@@ -105,15 +108,16 @@ export const MyAlert = ({
 						<div className="flex items-center gap-3">
 							{textCancelButton && (
 								<Button
-									variant="secondary"
+									variant="default"
 									onClick={onCancel}
 									disabled={isLoadingConfirm}
+									className="text-white"
 								>
 									{textCancelButton}
 								</Button>
 							)}
 							<Button
-								variant="default"
+								variant="ghost"
 								className={`${
 									type === 'success'
 										? 'button-success'
