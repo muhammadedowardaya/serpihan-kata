@@ -33,8 +33,6 @@ export const CommentList = ({
 			if (element) {
 				element.scrollIntoView({ behavior: 'smooth' });
 			}
-			console.info({ commentId });
-			console.info({ element });
 		}
 	}, [commentId, getComments.data]);
 

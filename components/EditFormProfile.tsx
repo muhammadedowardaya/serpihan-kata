@@ -156,7 +156,7 @@ const EditFormProfile = () => {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [getUser.isLoading]);
+	}, [getUser.data]);
 
 	function onSubmit(values: z.infer<typeof userSchema>) {
 		const formData = new FormData();
@@ -200,9 +200,9 @@ const EditFormProfile = () => {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="edit-form__profile w-full max-w-[400px] md:max-w-full relative"
+				className="edit-form__profile w-full max-w-[400px] md:max-w-[80vw] pb-4 relative"
 			>
-				<div>
+				<div className="w-full">
 					{/* Name Field */}
 					<FormField
 						control={form.control}
@@ -247,7 +247,7 @@ const EditFormProfile = () => {
 									<Textarea
 										className="resize-none h-[180px]"
 										placeholder="Type your bio"
-										maxLength={400}
+										maxLength={150}
 										{...field}
 									/>
 								</FormControl>
@@ -259,13 +259,13 @@ const EditFormProfile = () => {
 										form.getValues('bio')?.length === 0 ? 'hidden' : ''
 									}`}
 								>
-									{form.getValues('bio')?.length}/400
+									{form.getValues('bio')?.length}/150
 								</div>
 							</FormItem>
 						)}
 					/>
 				</div>
-				<div>
+				<div className="w-full">
 					<FormItem className="profile-input">
 						<FormLabel>Profile Picture</FormLabel>
 						<div className="flex justify-center items-center gap-2 pt-1 pb-4">
@@ -304,7 +304,7 @@ const EditFormProfile = () => {
 					</FormItem>
 
 					<fieldset className="social-media">
-						<legend className="mx-auto mb-2 text-slate-600">
+						<legend className="mx-auto mb-4 text-slate-600">
 							Social Media (Optional)
 						</legend>
 
@@ -397,7 +397,7 @@ const EditFormProfile = () => {
 								control={form.control}
 								name="socialMedia.other"
 								render={({ field }) => (
-									<FormItem>
+									<FormItem className="social-media__input">
 										<FormLabel>Other</FormLabel>
 										<FormControl>
 											<Input
@@ -412,11 +412,14 @@ const EditFormProfile = () => {
 						</div>
 					</fieldset>
 				</div>
+
 				<Button
 					type="submit"
 					disabled={mutation.isPending}
-					variant="accent"
-					className="mb-10 mt-4 mr-2 ml-auto col-span-2"
+					variant="highlight"
+					className="m-[20px_10px_20px_10px] md:mx-auto col-span-2 w-full md:max-w-[400px]
+                        md:tracking-wide md:font-bold text-lg md:text-xl md:py-2
+                    "
 				>
 					{mutation.isPending ? 'Updating...' : 'Update Profile'}
 				</Button>

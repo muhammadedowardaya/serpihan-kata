@@ -13,7 +13,6 @@ import { timeAgo } from '@/lib/utils';
 import { EllipsisVertical, EyeIcon, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/types';
-import Image from 'next/image';
 import {
 	Menubar,
 	MenubarContent,
@@ -51,6 +50,7 @@ const PostCard = ({
 		thumbnail,
 		postTag,
 		user,
+		isDraft,
 	} = post;
 
 	const [filterByTags] = useAtom(filterByTagsAtom);
@@ -68,9 +68,9 @@ const PostCard = ({
 					: fullWidth
 					? 'max-w-full'
 					: 'max-w-[300px]'
-			} border m-[2px] p-[2px] h-max break-inside-avoid relative overflow-hidden`}
+			} border border-border m-[2px] p-[2px] h-max break-inside-avoid relative overflow-hidden`}
 		>
-			<CardHeader className="space-y-2 pb-2 px-4 pt-4">
+			<CardHeader className="flex flex-col gap-2 pb-2 px-4 pt-4">
 				{mode === 'normal' && (
 					<div
 						className={`flex justify-between gap-2 ${
@@ -102,9 +102,9 @@ const PostCard = ({
 								if (onDelete) onDelete();
 							}}
 							variant="ghost"
-							className="absolute top-0 right-0 bg-red-700 rounded-bl-full"
+							className="h-14 w-14 p-0 m-0 absolute top-0 right-0 bg-red-700 rounded-bl-full z-30"
 						>
-							<Trash2 size={20} className="text-white m-2" />
+							<Trash2 size={20} className="text-white mb-2 ml-2" />
 						</Button>
 					</div>
 				)}
@@ -114,8 +114,8 @@ const PostCard = ({
 							size === 'md' ? 'text-sm' : 'text-xs'
 						}`}
 					>
-						<div>
-							<div className="flex gap-1 items-center">
+						<div className="flex flex-col gap-2">
+							<div className="flex gap-2 items-center">
 								<EyeIcon className="size-5 text-slate-600" />
 								<span>{views}</span>
 							</div>
@@ -123,13 +123,15 @@ const PostCard = ({
 						</div>
 						<Menubar className="border-none">
 							<MenubarMenu>
-								<MenubarTrigger className="p-0 focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground">
+								<MenubarTrigger className="p-0 ">
 									<EllipsisVertical size={20} />
 								</MenubarTrigger>
 								<MenubarContent className="min-w-max">
-									<MenubarItem asChild>
+									<MenubarItem asChild className="p-0">
 										<div className="w-full">
 											<Button
+												variant="accent"
+												className="w-full"
 												onClick={() => {
 													if (onEdit) {
 														onEdit();
@@ -142,9 +144,11 @@ const PostCard = ({
 										</div>
 									</MenubarItem>
 									<MenubarSeparator />
-									<MenubarItem asChild>
-										<div className="w-max">
+									<MenubarItem asChild className="p-0">
+										<div className="w-full">
 											<Button
+												variant="destructive"
+												className="w-full"
 												onClick={() => {
 													if (onDelete) {
 														onDelete();
@@ -163,12 +167,12 @@ const PostCard = ({
 				)}
 				<div className="flex justify-between gap-5 py-2">
 					<div className="flex-1">
-						<Link href={`/user/${user?.username}`}>
+						<Link href={`/author/${user?.username}`}>
 							<p className={`py-2 ${size === 'md' ? 'text-base' : 'text-sm'}`}>
 								{user?.username}
 							</p>
 						</Link>
-						<Link href={`/${slug}`}>
+						<Link href={`${isDraft ? '#' : `/${slug}`}`}>
 							<h3
 								className={`font-bold ${
 									size === 'md' ? 'text-xl' : 'text-base md:text-lg'
@@ -179,15 +183,16 @@ const PostCard = ({
 						</Link>
 					</div>
 					<Link
-						href={`/user/${user?.username}`}
+						href={`/author/${user?.username}`}
 						className="shrink-0 w-10 h-10 border border-slate-300 rounded-full"
 					>
 						<Avatar className="w-full h-full">
 							<AvatarImage
 								src={user?.image as string}
 								alt={user?.name as string}
+								className="object-cover bg-primary text-primary-foreground"
 							/>
-							<AvatarFallback>
+							<AvatarFallback className="bg-primary text-primary-foreground">
 								{user?.username.slice(0, 2).toUpperCase()}
 							</AvatarFallback>
 						</Avatar>
@@ -195,19 +200,29 @@ const PostCard = ({
 				</div>
 			</CardHeader>
 			<CardContent className="px-4">
-				<Link href={`/post/${slug}`}>
+				<Link href={isDraft ? '#' : `/post/${slug}`}>
 					<p className={`${size === 'md' ? 'text-lg' : 'text-xs md:text-sm'}`}>
 						{description.length > 100
 							? `${description.slice(0, 100)}...`
 							: description}
 					</p>
-					<img
-						src={thumbnail as string}
-						alt="thumbnail"
-						className={`mt-4 w-full object-cover object-center border shadow-md ${
-							size === 'md' ? 'max-h-[250px]' : 'max-h-[150px]'
-						}`}
-					/>
+					{thumbnail ? (
+						<img
+							src={thumbnail as string}
+							alt="thumbnail"
+							className={`mt-4 w-full object-cover object-center border-border shadow-md ${
+								size === 'md' ? 'max-h-[250px]' : 'max-h-[150px]'
+							}`}
+						/>
+					) : (
+						<div
+							className={`mt-4  w-full flex justify-center items-center border-border shadow-md ${
+								size === 'md' ? 'h-[250px]' : 'h-[150px]'
+							}`}
+						>
+							<p>No thumbnail</p>
+						</div>
+					)}
 				</Link>
 			</CardContent>
 			<CardFooter className="px-4 pb-4 flex flex-col gap-6 mt-[5px]">

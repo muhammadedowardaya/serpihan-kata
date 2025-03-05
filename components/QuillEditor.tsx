@@ -19,35 +19,6 @@ import '@/styles/quill-editor.scss';
 
 import '@/lib/CustomTab.js';
 
-// interface Format {
-// 	bold?: boolean;
-// 	italic?: boolean;
-// 	underline?: boolean;
-// 	strike?: boolean;
-// 	code?: boolean;
-// 	blockquote?: boolean;
-// 	'code-block'?: boolean;
-// 	header?: 1 | 2 | 3 | 4 | 5 | 6;
-// 	list?: 'ordered' | 'bullet' | 'check';
-// 	script?: 'sub' | 'super';
-// 	indent?: string;
-// 	align?: string;
-// 	color?: string;
-// 	background?: string;
-// 	[key: string]: unknown; // Untuk format tambahan yang mungkin tidak tercantum
-// }
-
-// Tipe untuk Context
-// interface Context {
-// 	format: Format;
-// }
-
-// // Tipe untuk Range
-// interface Range {
-// 	index: number;
-// 	length: number;
-// }
-
 const QuillEditor = ({
 	field,
 	postId,
@@ -67,16 +38,18 @@ const QuillEditor = ({
 
 	useEffect(() => {
 		if (postData.state === 'hasData') {
+			console.info('postData hasData');
 			if (editorRef?.current) {
-				editorRef.current.root.innerHTML = field.value;
+				console.info('editorRef.current ada');
+
+				editorRef.current.root.innerHTML = field.value || '';
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [editorRef.current, postId, postData.state]);
+	}, [editorRef.current, postId, editPostId, postData.state]);
 
 	const handleImageUpload = async (quill: Quill, postId: string) => {
 		editorRef?.current?.enable(false);
-
 		const range = quill.getSelection();
 
 		const input = document.createElement('input');
@@ -155,10 +128,15 @@ const QuillEditor = ({
 						editorRef.current?.enable(true);
 						setProgress(0);
 					}
+				} else {
+					if (range) {
+						quill.setSelection(range.index);
+					}
 				}
 			}
 		};
 
+		editorRef?.current?.enable(true);
 		input.click();
 	};
 
@@ -167,6 +145,8 @@ const QuillEditor = ({
 
 		const initializeEditor = async () => {
 			if (asyncPostId.state === 'loading') {
+				console.info('asyncPostId loading...');
+
 				await Swal.fire({
 					showConfirmButton: false,
 					title: 'Loading...',
@@ -176,7 +156,8 @@ const QuillEditor = ({
 					allowOutsideClick: false,
 					didOpen: () => Swal.showLoading(),
 				});
-			} else if (asyncPostId.state === 'hasData' && asyncPostId.data) {
+			} else if (asyncPostId.state === 'hasData') {
+				console.info('asyncPostId sudah siap');
 				Swal.hideLoading();
 				Swal.close();
 
@@ -232,14 +213,17 @@ const QuillEditor = ({
 					});
 
 					editorRef.current = editor;
+
+					console.info('editor', editor);
 				}
 			}
 		};
 
 		initializeEditor();
+		console.info('initializeEditor dijalankan');
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [asyncPostId, field.value]);
+	}, [asyncPostId, postId, editPostId, postData.state]);
 
 	return (
 		<div

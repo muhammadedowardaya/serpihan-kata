@@ -246,11 +246,16 @@ const PostContent = ({
 			} relative`}
 		>
 			{!hideBreadcrumb && (
-				<section className="padding-content flex justify-center items-center breadcrumb flex items-center text-xs">
+				<section className="padding-content flex justify-center items-center breadcrumb flex items-center text-xs sm:text-base">
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem>
-								<BreadcrumbLink href="/posts">All Posts</BreadcrumbLink>
+								<BreadcrumbLink
+									href="/posts"
+									className="underline underline-offset-4"
+								>
+									All Posts
+								</BreadcrumbLink>
 							</BreadcrumbItem>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
@@ -267,31 +272,40 @@ const PostContent = ({
 				</section>
 			)}
 
-			<section className="prose lg:prose-2xl w-full mx-auto md:border mt-4 main-content grid relative">
+			<section className="grid prose sm:prose-xl md:prose-2xl w-full mx-auto mt-4 main-content relative z-40">
 				<ScrollArea className="px-4">
 					<ShowPostContent data={data} />
 				</ScrollArea>
+				{/* <div className="z-50 absolute bottom-0 left-0 right-0 h-[20px] bg-accent"></div> */}
 			</section>
 
-			<div className="border-t py-4 info-section">
-				<div className="flex items-start justify-between mb-6">
+			<div className="py-4 info-section">
+				<div className="flex flex-col xs:flex-row items-center gap-4 py-4 md:py-0 border-y border-primary md:border-none xs:items-start xs:justify-between mb-6">
 					{/* Tanggal */}
-					<p className="text-xs text-muted-foreground my-0">
+					<p className="text-xs md:text-sm font-semibold my-0">
 						{formatDate(getPost.data?.createdAt.toString() as string)}
 					</p>
 					<div className="flex items-center justify-center w-max gap-4">
-						<div className="flex items-end gap-1">
+						<Button
+							variant="ghost"
+							className="flex items-end gap-1 group"
+							aria-pressed={isLiked}
+							aria-label={isLiked ? 'Unlike this post' : 'Like this post'}
+							onClick={likeHandler}
+						>
 							<ThumbsUp
 								strokeWidth={1}
-								onClick={likeHandler}
-								className={`size-5 ${isLiked ? 'fill-sky-500' : ''}`}
+								className={`size-5 ${
+									isLiked ? 'fill-primary' : ''
+								} group-hover:fill-primary`}
+								aria-hidden="true"
 							/>
 							{likesLength > 0 && (
 								<span className="text-sm">{likesLength}</span>
 							)}
-						</div>
+						</Button>
 
-						<PostCommentButton data={data} className="size-5" />
+						<PostCommentButton data={data} className="!size-5" />
 
 						{isSavedPost.isPending ||
 						removeFromSavedPost.isPending ||
@@ -299,22 +313,25 @@ const PostContent = ({
 							<Button
 								variant="ghost"
 								color="gray"
-								className="w-max hover:bg-transparent"
+								className="w-max hover:bg-transparent group"
 							>
-								<LoaderCircle className="animate-spin size-5" />
+								<LoaderCircle className="animate-spin size-5 group-hover:fill-primary" />
 							</Button>
 						) : (
-							<a
+							<Button
+								variant="ghost"
 								data-tooltip-id="bookmark"
 								data-tooltip-delay-show={1000}
-								className="w-max"
+								className="w-max group"
 								onClick={savePostHandler}
 							>
 								<Bookmark
-									className={`${isSavedPost.data ? 'fill-sky-500' : ''} size-5`}
+									className={`${
+										isSavedPost.data ? 'fill-primary' : ''
+									} size-5 group-hover:fill-primary`}
 									strokeWidth={isSavedPost.data ? 0 : 1}
 								/>
-							</a>
+							</Button>
 						)}
 
 						<Tooltip id="bookmark" place="top" className="text-sm! w-32">
@@ -325,39 +342,43 @@ const PostContent = ({
 					</div>
 				</div>
 
-				{/* Informasi Penulis */}
-				<Link href={`/user/${getPost.data?.user.username}`}>
-					<div className="flex h-max items-center gap-3 hover:opacity-80 transition-opacity">
-						<Avatar className="rounded-full max-w-10 max-h-10">
-							<AvatarImage
-								src={getPost.data?.user.image || 'https://placehold.co/48x48'}
-								alt={getPost.data?.user.username}
-								className="m-0"
-							/>
-							<AvatarFallback>
-								{getPost.data?.user.username?.charAt(0)}
-							</AvatarFallback>
-						</Avatar>
-						<div className="flex flex-col gap-1 shrink-0">
-							<span className="text-sm font-semibold">
-								{getPost.data?.user.name}
-							</span>
-							<span className="text-xs text-muted-foreground">
-								@{getPost.data?.user.username}
-							</span>
+				<div className="">
+					<h3 className="text-center sm:text-start text-xs text-slate-400 sm:text-base">
+						Author
+					</h3>
+					<Link href={`/author/${getPost.data?.user.username}`}>
+						<div className="flex rounded-md h-max items-center gap-3 hover:opacity-80 transition-opacity p-2">
+							<Avatar className="rounded-full max-w-10 max-h-10">
+								<AvatarImage
+									src={getPost.data?.user.image || 'https://placehold.co/48x48'}
+									alt={getPost.data?.user.username}
+									className="m-0 border border-border"
+								/>
+								<AvatarFallback className="m-0 border border-border">
+									{getPost.data?.user.username?.slice(0, 2).toUpperCase()}
+								</AvatarFallback>
+							</Avatar>
+							<div className="flex flex-col gap-1 ">
+								<span className="text-sm font-semibold word-break leading-4">
+									{getPost.data?.user.name}
+								</span>
+								<span className="text-xs text-muted-foreground word-break">
+									@{getPost.data?.user.username}
+								</span>
+							</div>
 						</div>
-					</div>
-				</Link>
+					</Link>
+				</div>
 
 				{/* Kategori / Tags */}
 				{getPost.data?.postTag && getPost.data?.postTag.length > 0 && (
-					<div className="text-xs space-y-2 mt-4">
-						<h3>Tags :</h3>
+					<div className="mt-4">
+						<h3 className="mb-2 text-xs sm:text-sm text-slate-400">Tags :</h3>
 						<div className="flex flex-wrap gap-2">
 							{getPost.data?.postTag.map(({ tag: { id, label } }) => (
 								<span
 									key={id}
-									className="px-2 border border-slate-700 rounded-full"
+									className="px-2 text-xs sm:text-sm border border-slate-700 rounded-full"
 								>
 									{label}
 								</span>
@@ -392,7 +413,7 @@ const PostContent = ({
 						alertPostContent?.type as 'error' | 'success' | 'warning' | 'info'
 					}
 					title={alertPostContent?.title as string}
-					description={alertPostContent?.description}
+					description={<span>{alertPostContent?.description}</span>}
 				/>
 			)}
 		</article>

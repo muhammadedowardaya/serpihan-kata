@@ -53,7 +53,7 @@ const NotificationsPage = async () => {
 	);
 
 	return (
-		<div>
+		<div className="py-4">
 			<NotificationList notifications={mappedNotifications} />
 		</div>
 	);

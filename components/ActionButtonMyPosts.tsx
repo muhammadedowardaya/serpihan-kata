@@ -9,7 +9,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { editPostIdAtom, postIdAtom, resetPostDataAtom } from '@/jotai';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Plus } from 'lucide-react';
 
 export const ActionButtonMyPosts = () => {
 	const router = useRouter();
@@ -81,7 +81,9 @@ export const ActionButtonMyPosts = () => {
 					Loading...
 				</div>
 			) : (
-				<span>Create New Post</span>
+				<span>
+					<Plus />
+				</span>
 			)}
 		</Button>
 	);

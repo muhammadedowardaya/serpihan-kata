@@ -74,7 +74,7 @@ export const PUT = async (
 			},
 			select: {
 				slug: true,
-                userId:true
+				userId: true,
 			},
 		});
 
@@ -108,40 +108,43 @@ export const PUT = async (
 				}
 
 				thumbnailUrl = thumbnailImage.url as string;
-                console.info('thumbnailUrl ketika sukses : ', thumbnailUrl);
+				console.info('thumbnailUrl ketika sukses : ', thumbnailUrl);
 			} else {
 				console.info('image gagal, periksa saveImage pada thumbnailImage');
 			}
 		} else if (typeof thumbnail === 'string') {
 			thumbnailUrl = thumbnail;
-			console.info('thumbnail tidak berubah')
+			console.info('thumbnail tidak berubah');
 		}
-
 
 		// update konten ke database
 		const post = await prisma.post.update({
-            where: { id },
-            data: {
-                title,
-                slug,
-                description,
-                content,
-                thumbnail: thumbnailUrl,
-                userId,
-                postTag: {
-                    deleteMany: {}, // Hapus semua relasi postTag sebelum update
-                    create: tags.map((tag) => ({
-                        tag: {
-                            connectOrCreate: {
-                                where: { value: tag.value },
-                                create: { label: tag.label, value: tag.value },
-                            },
-                        },
-                    })),
-                },
-            },
-        });
-        
+			where: { id },
+			data: {
+				isDraft: false,
+				title,
+				slug,
+				description,
+				content,
+				thumbnail: thumbnailUrl,
+				user: {
+					connect: {
+						id: userId,
+					},
+				},
+				postTag: {
+					deleteMany: {}, // Hapus semua relasi postTag sebelum update
+					create: tags.map((tag) => ({
+						tag: {
+							connectOrCreate: {
+								where: { value: tag.value },
+								create: { label: tag.label, value: tag.value },
+							},
+						},
+					})),
+				},
+			},
+		});
 
 		return NextResponse.json(
 			{ message: 'Post updated successfully', post },

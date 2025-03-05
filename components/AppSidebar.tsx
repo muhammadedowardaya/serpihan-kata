@@ -17,10 +17,12 @@ export async function AppSidebar() {
 
 	return (
 		<Sidebar className="w-64 z-50 bg-background text-background-foreground">
-			<SidebarTrigger className="absolute w-[40px] h-[50px] z-50 -right-10 top-0 bg-primary text-primary-foreground" />
+			<SidebarTrigger className="absolute w-[40px] h-[60px] z-50 -right-10 top-0 bg-primary text-primary-foreground rounded-none" />
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>GO - BLOG | Dashboard</SidebarGroupLabel>
+					<SidebarGroupLabel className="my-2 block text-center">
+						GO - BLOG | Dashboard
+					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							<SidebarMenuItemList

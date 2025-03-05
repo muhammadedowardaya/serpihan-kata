@@ -20,6 +20,10 @@ import { socket } from '@/socket-client';
 import { Button } from './ui/button';
 import { useSetAtom } from 'jotai';
 import { alertPostCommentAtom } from '@/jotai';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+import { motion, useAnimation } from 'motion/react';
 
 const CommentItem = ({ comment }: { comment: Comment }) => {
 	const { data: session } = useSession();
@@ -32,24 +36,6 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 	const { addLike, removeLike } = useLike();
 
 	const [showAlertDelete, setShowAlertDelete] = useState(false);
-
-	let avatarFallbackLetter = '';
-	const fullNameArray = comment?.user?.name?.split(' ');
-
-	if (fullNameArray) {
-		let firstLetter = '';
-		let secondLetter = '';
-
-		if (fullNameArray.length > 1) {
-			firstLetter = fullNameArray[0].at(0) as string;
-			secondLetter = fullNameArray[1].at(0) as string;
-		} else {
-			firstLetter = fullNameArray[0].at(0) as string;
-			secondLetter = fullNameArray[0].at(1) as string;
-		}
-
-		avatarFallbackLetter = firstLetter + secondLetter;
-	}
 
 	const queryClient = useQueryClient();
 
@@ -151,6 +137,34 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [comment.id]);
 
+	const [highlight, setHighlight] = useState(false);
+
+	const searchParams = useSearchParams();
+	const commentId = searchParams.get('comment');
+
+	useEffect(() => {
+		if (commentId === comment.id && likesQuery.data) {
+			setHighlight(true);
+		}
+	}, [commentId, comment.id, likesQuery.data]);
+
+	const controls = useAnimation();
+
+	useEffect(() => {
+		if (highlight) {
+			controls.start({
+				scale: [1, 0.95, 1],
+				transition: {
+					duration: 0.5,
+					repeat: 5, // Ulangi animasi 5 kali
+					repeatType: 'reverse',
+					ease: 'easeInOut',
+					repeatDelay: 1,
+				},
+			});
+		}
+	}, [highlight, controls]);
+
 	if (likesQuery.isLoading) {
 		return <CommentItemSkeleton />;
 	}
@@ -161,46 +175,54 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 			role="article"
 			aria-labelledby={`comment-author-${comment.user?.username}`}
 		>
-			<div className="border border-slate-400 rounded-md p-2 pb-2 bg-background text-background-foreground h-max">
+			<motion.div
+				// initial={{
+				// 	backgroundColor: '#334155',
+				// }}
+				animate={controls}
+				className="border rounded-md p-[10px] pb-2 h-max bg-primary text-primary-foreground"
+			>
 				<div className="flex gap-x-4">
 					{/* Avatar */}
-					<Avatar>
-						<AvatarImage
-							src={comment?.user?.image}
-							alt={`${comment?.user?.username}'s avatar`}
-						/>
-						<AvatarFallback className="bg-accent hover:bg-accent-hover text-accent-foreground border border-white">
-							{avatarFallbackLetter}
-						</AvatarFallback>
-					</Avatar>
+					<Link href={`/author/${comment.user?.username}`}>
+						<Avatar className="bg-secondary hover:bg-secondary-hover text-secondary-foreground border-2 border-border">
+							<AvatarImage
+								src={comment?.user?.image}
+								alt={`${comment?.user?.username}'s avatar`}
+								className="object-cover"
+							/>
+							<AvatarFallback>
+								{comment?.user.username.slice(0, 2).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
+					</Link>
 
 					{/* Informasi pengguna dan komentar */}
 					<div className="w-full flex flex-col justify-evenly">
 						<h2
 							id={`comment-author-${comment.user?.username}`}
-							className="text-slate-500 font-medium text-xs"
+							className="text-yellow-200 font-medium text-xs"
 						>
 							{comment?.user.username}
 						</h2>
-						<p className="mt-1 text-slate-900 text-xs">{comment?.message}</p>
+						<p className="mt-1 text-white text-xs">{comment?.message}</p>
 					</div>
 				</div>
 
 				{/* Waktu komentar */}
-				<div className="flex items-center justify-between gap-x-4 mt-4">
-					<span className="text-slate-500 text-xs">
+				<div className="flex items-center justify-between gap-x-4 mt-4 pr-1">
+					<span className="text-primary-foreground text-xs">
 						{formatDistance(comment?.createdAt, new Date(), {
 							addSuffix: true,
 						})}
 					</span>
-
 					{/* Aksi tombol */}
 					<div className="flex items-center justify-end gap-x-4 w-max">
 						{/* Tombol Like */}
 						<Button
 							variant="ghost"
 							onClick={likeHandler}
-							className="flex items-center gap-x-1 p-0 m-0 h-max"
+							className="flex items-center gap-x-1 p-0 m-0 h-max group"
 							aria-pressed={isLiked}
 							aria-label={isLiked ? 'Unlike this comment' : 'Like this comment'}
 						>
@@ -208,8 +230,8 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 								strokeWidth={1}
 								size={15}
 								className={`${
-									isLiked ? 'fill-info' : ''
-								} hover:fill-info-hover`}
+									isLiked ? 'fill-tertiary' : ''
+								} group-hover:fill-tertiary`}
 								aria-hidden="true"
 							/>
 							<span className="text-sm" aria-live="polite">
@@ -224,21 +246,21 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 						{comment?.user?.id === session?.user?.id && (
 							<Button
 								variant="ghost"
-								className="p-0 h-max"
+								className="p-0 h-max group"
 								onClick={() => setShowAlertDelete(true)}
 								aria-label="Delete this comment"
 							>
 								<Trash
 									size={15}
 									strokeWidth={1}
-									className="hover:fill-error"
+									className="group-hover:fill-tertiary"
 									aria-hidden="true"
 								/>
 							</Button>
 						)}
 					</div>
 				</div>
-			</div>
+			</motion.div>
 
 			{/* Komentar balasan */}
 			{getReplies.data && getReplies.data.length > 0 && (
@@ -250,7 +272,7 @@ const CommentItem = ({ comment }: { comment: Comment }) => {
 				<MyAlert
 					open={showAlertDelete}
 					title="Are you sure?"
-					description="You won't be able to revert this!"
+					description={<span>{`You won't be able to revert this!`}</span>}
 					textConfirmButton="Yes, delete it!"
 					textCancelButton="Cancel"
 					type="warning"

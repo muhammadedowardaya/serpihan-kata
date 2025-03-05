@@ -162,7 +162,11 @@ export function CommentButton({
 			>
 				<DialogTrigger asChild onClick={() => handleAddCommentClicked()}>
 					<div className="w-full h-full">
-						<Button className={`${className}`} aria-label="Add Comment">
+						<Button
+							variant="ghost"
+							className={`${className}`}
+							aria-label="Add Comment"
+						>
 							Add Comment
 						</Button>
 					</div>
@@ -171,12 +175,12 @@ export function CommentButton({
 					<DialogHeader>
 						<DialogTitle>
 							<span
-								className="text-slate-700 font-normal"
+								className="text-primary font-normal"
 								aria-label={`Add Comment to ${data.title}`}
 							>
 								Add a Comment to
 							</span>
-							<q aria-hidden="true" className="">
+							<q aria-hidden="true" className="ml-1">
 								{data.title && data.title}
 							</q>
 						</DialogTitle>
@@ -197,6 +201,7 @@ export function CommentButton({
 						disabled={mutation.isPending}
 						aria-live="polite"
 						aria-pressed={mutation.isPending}
+						className="text-lg"
 					>
 						{mutation.isPending ? (
 							<>
@@ -204,7 +209,7 @@ export function CommentButton({
 								Please wait
 							</>
 						) : (
-							<span aria-label="Send Comment">Send</span>
+							<span aria-label="Send Comment font-bolder">Send</span>
 						)}
 					</Button>
 				</DialogContent>
@@ -223,17 +228,18 @@ export function CommentButton({
 		>
 			<DrawerTrigger asChild onClick={handleAddCommentClicked}>
 				<Button
+					variant="ghost"
 					className={className}
 					// onClick={() => console.info('button add comment')}
 				>
 					Add Comment
 				</Button>
 			</DrawerTrigger>
-			<DrawerContent className="h-screen max-h-[80vh] flex flex-col px-4">
+			<DrawerContent className="h-screen max-h-[60vh] flex flex-col px-6">
 				<DrawerHeader className="text-left px-0 mx-0">
 					<DrawerTitle>
 						<span
-							className="text-slate-500 mr-1"
+							className="text-primary mr-1 leading-4"
 							aria-label={`Add Comment to ${data.title}`}
 						>
 							Add a Comment to
@@ -259,14 +265,16 @@ export function CommentButton({
 				<DrawerFooter className="pt-2 flex-row justify-end px-0 mt-2">
 					<DrawerClose asChild>
 						<Button
-							variant="outline"
+							variant="ghost"
 							aria-label="Cancel Comment"
 							disabled={mutation.isPending}
+							className="border border-border"
 						>
 							Cancel
 						</Button>
 					</DrawerClose>
 					<Button
+						variant="accent"
 						onClick={handleOnSend}
 						disabled={mutation.isPending}
 						aria-pressed={mutation.isPending}

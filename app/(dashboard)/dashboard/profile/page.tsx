@@ -1,17 +1,14 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-
 import 'swiper/css';
 import 'swiper/css/effect-cards';
 
-import { EffectCards } from 'swiper/modules';
-import { LoaderCircle, Pencil, Quote, Trash, X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Tooltip,
@@ -21,25 +18,26 @@ import {
 } from '@/components/ui/tooltip';
 import { editProfileAtom } from '@/jotai';
 import { useAtom } from 'jotai';
-import Link from 'next/link';
-
-import { Icon } from '@iconify/react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { MyAlert } from '@/components/MyAlert';
-import Swal from 'sweetalert2';
-import { Toast } from '@/lib/sweetalert';
 import { User } from 'next-auth';
 import EditFormProfile from '@/components/EditFormProfile';
+import dynamic from 'next/dynamic';
+import { MyProfileSkeleton } from '@/components/MyProfileSkeleton';
+
+const MyProfile = dynamic(
+	() => import('@/components/MyProfile').then((mod) => mod.MyProfile),
+	{
+		ssr: false,
+		loading: () => <MyProfileSkeleton />,
+	}
+);
 
 const ProfilePage = () => {
 	const { data: session } = useSession();
 
 	const [editProfile, setEditProfile] = useAtom(editProfileAtom);
-	const [socialMedia, setSocialMedia] = useState<[string, string][]>([]);
 
 	const [showAlertWarning, setShowAlertwarning] = useState(false);
-	const [selectedPlatform, setSelectedPlatform] = useState('');
 
 	const queryClient = useQueryClient();
 
@@ -52,52 +50,8 @@ const ProfilePage = () => {
 		enabled: !!session?.user?.id,
 	});
 
-	const deleteSocialMedia = useMutation({
-		mutationKey: ['social-media'],
-		mutationFn: async ({ id, platform }: { id: string; platform: string }) => {
-			const response = await axios.patch(`/api/social-media/${id}`, {
-				platform,
-			});
-			return response.data.socialMedia;
-		},
-		onSuccess: () => {
-			setSelectedPlatform('');
-			queryClient.invalidateQueries({ queryKey: ['profile'] });
-			Toast.fire('The social media link has been deleted.', '', 'success');
-		},
-		onError: (error) => {
-			setSelectedPlatform('');
-			Swal.fire('Error', error.message, 'error');
-		},
-	});
-
-	const handleDeleteSocialMedia = (platform: string) => {
-		Swal.fire({
-			title: 'Heads up!',
-			text: 'Once deleted, the social media link cannot be restored. However, you can add it again later in your profile settings.',
-			showConfirmButton: true,
-			confirmButtonText: 'Delete',
-			showCancelButton: true,
-			icon: 'warning',
-		}).then((result) => {
-			if (result.isConfirmed) {
-				setSelectedPlatform(platform);
-
-				deleteSocialMedia.mutate({
-					id: getUser.data?.socialMediaId as string,
-					platform,
-				});
-			}
-		});
-	};
-
 	useEffect(() => {
 		if (getUser.data) {
-			if (getUser.data?.socialMedia) {
-				const socialMediaDataArray = Object.entries(getUser.data?.socialMedia);
-				setSocialMedia(socialMediaDataArray.filter(([, url]) => url !== null));
-			}
-
 			if (!getUser.data?.username) {
 				setShowAlertwarning(true);
 			}
@@ -110,14 +64,14 @@ const ProfilePage = () => {
 	}, [editProfile]);
 
 	return (
-		<div className="flex flex-col justify-center items-center relative pt-10">
+		<div className="flex flex-col justify-center items-center relative pb-16">
 			<TooltipProvider>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						{editProfile ? (
 							<Button
 								variant="destructive"
-								className="sticky top-2 right-4 rounded-full z-40 ml-auto w-[40px] h-[40px]"
+								className="md:sticky top-2 md:top-4 -right-4 rounded-full z-40 ml-auto w-[40px] h-[40px]"
 								onClick={() => setEditProfile(false)}
 							>
 								<X size={20} className="p-0" />
@@ -125,7 +79,7 @@ const ProfilePage = () => {
 						) : (
 							<Button
 								variant="secondary"
-								className="sticky top-2 right-4 rounded-full z-40 ml-auto w-[50px] h-[50px]"
+								className="md:sticky top-2 md:top-4 -right-4 rounded-full z-40 ml-auto w-[50px] h-[50px]"
 								onClick={() => setEditProfile(true)}
 							>
 								<Pencil size={20} />
@@ -142,7 +96,35 @@ const ProfilePage = () => {
 				{editProfile ? 'Edit Profile' : 'Profile'}
 			</h1>
 			{!editProfile ? (
-				<Swiper
+				<MyProfile userId={session?.user.id as string} />
+			) : (
+				<EditFormProfile />
+			)}
+
+			<MyAlert
+				open={showAlertWarning}
+				title="Warning"
+				description={
+					<div>
+						Hi <b>{getUser.data?.email}</b>, your username is not set. A
+						username is required to continue. Set it now to proceed.
+					</div>
+				}
+				textConfirmButton="Set Username"
+				type="warning"
+				onConfirm={() => {
+					setShowAlertwarning(false);
+					setEditProfile(true);
+				}}
+			/>
+		</div>
+	);
+};
+
+export default ProfilePage;
+
+{
+	/* <Swiper
 					effect={'cards'}
 					grabCursor={true}
 					modules={[EffectCards]}
@@ -316,29 +298,5 @@ const ProfilePage = () => {
 							</SwiperSlide>
 						</>
 					)}
-				</Swiper>
-			) : (
-				<EditFormProfile />
-			)}
-
-			<MyAlert
-				open={showAlertWarning}
-				title="Warning"
-				description={
-					<div>
-						Hi <b>{getUser.data?.email}</b>, your username is not set. A
-						username is required to continue. Set it now to proceed.
-					</div>
-				}
-				textConfirmButton="Set Username"
-				type="warning"
-				onConfirm={() => {
-					setShowAlertwarning(false);
-					setEditProfile(true);
-				}}
-			/>
-		</div>
-	);
-};
-
-export default ProfilePage;
+				</Swiper> */
+}

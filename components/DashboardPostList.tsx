@@ -8,7 +8,7 @@ import PostCard from './PostCard';
 import { LoaderCircle } from 'lucide-react';
 import { useAtom } from 'jotai';
 import { editPostIdAtom } from '@/jotai';
-import EditFormPost from './EditFormPost';
+import EditFormPost from './FormPost';
 import { Toast } from '@/lib/sweetalert';
 import Swal from 'sweetalert2';
 
@@ -55,11 +55,11 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	const handleDelete = (id: string) => {
 		Swal.fire({
 			title: 'Are you sure?',
-			text: 'You won\'t be able to revert this!',
+			text: "You won't be able to revert this!",
 			icon: 'warning',
 			showConfirmButton: true,
 			confirmButtonText: 'Delete',
-            confirmButtonColor: '#d33',
+			confirmButtonColor: '#d33',
 			showCancelButton: true,
 		}).then((result) => {
 			if (result.isConfirmed) {
@@ -99,7 +99,7 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	}
 
 	return (
-		<div className="columns-1 sm:columns-2 lg:columns-3">
+		<div className="flex gap-4 justify-center items-center flex-wrap">
 			{getMyPosts.data.length > 0 ? (
 				getMyPosts.data.map((post: Post) => (
 					<PostCard
@@ -116,4 +116,3 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 		</div>
 	);
 };
-

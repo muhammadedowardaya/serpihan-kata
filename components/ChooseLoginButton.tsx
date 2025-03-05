@@ -185,7 +185,7 @@ const ChooseLoginButton = () => {
 						<MyAlert
 							open={!!alertAuth}
 							title={alertAuth.title}
-							description={alertAuth.description}
+							description={<span>{alertAuth.description}</span>}
 							type={alertAuth.type}
 							onConfirm={() => setAlertAuth(null)}
 							textConfirmButton={alertAuth.textConfirmButton}

@@ -2,11 +2,10 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { saveUserImage } from '@/lib/save-user-image';
 import { SocialMedia } from '@/types';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async () => {
-	console.info('GET /api/user');
-
 	try {
 		const session = await auth();
 		const id = session ? session?.user?.id : null;
@@ -42,132 +41,103 @@ export const GET = async () => {
 		if (error instanceof Error) {
 			console.info(error.message);
 		}
+		return NextResponse.json(
+			{
+				error: 'Internal Server Error',
+			},
+			{
+				status: 500,
+			}
+		);
 	}
 };
 
 export const PATCH = async (request: NextRequest) => {
 	try {
 		const session = await auth();
-		const id = session?.user?.id as string;
-		const email = session?.user?.email as string;
+		const id = session?.user?.id;
+
+		if (!id) {
+			return NextResponse.json(
+				{ error: 'Unauthorized', success: false },
+				{ status: 401 }
+			);
+		}
 
 		const formData = await request.formData();
-
 		const name = formData.get('name') as string;
 		const username = formData.get('username') as string;
 		const image = formData.get('image');
 		const bio = formData.get('bio') as string;
 
-		const facebook = formData.get('facebook') as string;
-		const instagram = formData.get('instagram') as string;
-		const linkedin = formData.get('linkedin') as string;
-		const tiktok = formData.get('tiktok') as string;
-		const youtube = formData.get('youtube') as string;
-		const github = formData.get('github') as string;
-		const other = formData.get('other') as string;
+		const socialMediaData: Partial<SocialMedia> = {
+			facebook: formData.get('facebook') as string,
+			instagram: formData.get('instagram') as string,
+			linkedin: formData.get('linkedin') as string,
+			tiktok: formData.get('tiktok') as string,
+			youtube: formData.get('youtube') as string,
+			github: formData.get('github') as string,
+			other: formData.get('other') as string,
+		};
 
-		const socialMediaData: SocialMedia = {};
+		// Filter undefined/null dari socialMediaData
+		Object.keys(socialMediaData).forEach(
+			(key) =>
+				socialMediaData[key as keyof SocialMedia] === null &&
+				delete socialMediaData[key as keyof SocialMedia]
+		);
 
-		if (facebook) socialMediaData.facebook = facebook;
-		if (instagram) socialMediaData.instagram = instagram;
-		if (linkedin) socialMediaData.linkedin = linkedin;
-		if (tiktok) socialMediaData.tiktok = tiktok;
-		if (youtube) socialMediaData.youtube = youtube;
-		if (github) socialMediaData.github = github;
-		if (other) socialMediaData.other = other;
-
-		if (!id) {
-			return NextResponse.json(
-				{
-					error: 'Unauthorized',
-					success: false,
-				},
-				{ status: 401 }
-			);
-		}
-
+		// Cek apakah username diubah dan belum digunakan
 		if (username) {
 			const existingUser = await prisma.user.findUnique({
 				where: { username },
 			});
-
 			if (existingUser && existingUser.id !== id) {
 				return NextResponse.json(
-					{
-						error: 'Username already exists.',
-						success: false,
-					},
-					{ status: 409 } // 409 Conflict
+					{ error: 'Username already exists.', success: false },
+					{ status: 409 }
 				);
 			}
 		}
 
-		let imageUrl = '';
-
+		// Handle image upload jika ada file yang diunggah
+		let imageUrl: string | undefined;
 		if (typeof image === 'object') {
 			const saveImageResult = await saveUserImage(image as File, username);
-
 			if (saveImageResult.success) {
-				imageUrl = saveImageResult.url as string;
+				imageUrl = saveImageResult.url;
 			}
-		} else {
-			imageUrl = image as string;
+		} else if (typeof image === 'string') {
+			imageUrl = image;
 		}
 
-		interface Data {
-			name?: string;
-			username?: string;
-			bio?: string;
-			image?: string;
-			socialMediaId?: string;
-		}
+		// Buat objek update data untuk user
+		const updateData: Prisma.userUpdateInput = {};
+		if (name) updateData.name = name;
+		if (username) updateData.username = username;
+		if (bio) updateData.bio = bio;
+		if (imageUrl) updateData.image = imageUrl;
 
-		const data: Data = {};
-
-		if (name) data.name = name;
-		if (username) data.username = username;
-		if (imageUrl !== '') data.image = imageUrl;
-		data.bio = bio;
-
+		// Update user dan social media sekaligus
 		const user = await prisma.user.update({
 			where: { id },
-			data,
-		});
-
-		const existingSocialMedia = await prisma.socialMedia.findUnique({
-			where: {
-				id: email as string,
+			data: {
+				...updateData,
+				socialMedia: {
+					update: {
+						...Object.fromEntries(
+							Object.entries(socialMediaData).filter(([, url]) => url) // Hanya update jika URL tidak kosong
+						),
+					},
+				},
 			},
 		});
 
-		if (existingSocialMedia) {
-			await prisma.socialMedia.update({
-				where: {
-					id: email as string,
-				},
-				data: {
-					...socialMediaData,
-				},
-			});
-		}
-
-		return NextResponse.json(
-			{
-				user,
-				success: true,
-			},
-			{ status: 200 }
-		);
+		return NextResponse.json({ user, success: true }, { status: 200 });
 	} catch (error) {
-		if (error instanceof Error) {
-			console.info(error.message);
-		}
-
+		console.error(error);
 		return NextResponse.json(
-			{
-				error: 'Something went wrong',
-				success: false,
-			},
+			{ error: 'Something went wrong', success: false },
 			{ status: 500 }
 		);
 	}

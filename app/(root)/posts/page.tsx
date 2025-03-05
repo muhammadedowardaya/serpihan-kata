@@ -42,15 +42,30 @@ export default async function PostsPage({
 			user: true,
 			postTag: { include: { tag: true } },
 		},
-		where: query
-			? {
-					OR: [
-						{ title: { contains: query } },
-						{ description: { contains: query } },
-						{ content: { contains: query } },
-					],
-			  }
-			: {},
+		where: {
+			isDraft: false,
+			...(query?.trim()
+				? {
+						OR: [
+							{
+								title: {
+									contains: query.toLowerCase(),
+								},
+							},
+							{
+								description: {
+									contains: query.toLowerCase(),
+								},
+							},
+							{
+								content: {
+									contains: query.toLowerCase(),
+								},
+							},
+						],
+				  }
+				: {}),
+		},
 		orderBy,
 	});
 
@@ -68,7 +83,7 @@ export default async function PostsPage({
 				</div>
 				<div className="xs:sticky bg-background top-0 z-40 pb-4 pt-6 md:pt-0 shadow-border border-b padding-content">
 					{/* Search & Filter */}
-					<div className="flex flex-col sm:flex-row items-center gap-2 justify-center">
+					<div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 justify-center">
 						<SearchForm
 							query={query}
 							className="w-full max-w-[500px] h-[35px]"

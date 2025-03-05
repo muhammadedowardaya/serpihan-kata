@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { NotificationItem } from './NotificationItem';
 import { NotificationType } from '@prisma/client';
-import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
 
 export interface NotificationItemProps {
 	id: string;
@@ -19,6 +20,13 @@ export interface NotificationItemProps {
 	postSlug?: string | null;
 }
 
+interface NotificationMutation {
+	post: {
+		slug: string;
+	};
+	commentId: string;
+}
+
 export const NotificationList = ({
 	notifications,
 }: {
@@ -26,57 +34,72 @@ export const NotificationList = ({
 }) => {
 	const router = useRouter();
 
-	const handleOnClick = ({
-		postSlug,
-		commentId,
-	}: {
-		postSlug: string | undefined | null;
-		commentId: string | undefined | null;
-	}) => {
-		if (commentId && postSlug) {
-			router.push(`/post/${postSlug}?comment=${commentId}`);
-		} else if (postSlug) {
-			router.push(`/post/${postSlug}`);
-		}
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+
+	const mutation = useMutation<NotificationMutation, Error, { id: string }>({
+		mutationKey: ['readNotification'],
+		mutationFn: async ({ id }: { id: string }) => {
+			const response = await axios.patch(`/api/notifications/${id}/read`, {
+				id,
+			});
+			return response.data.notification;
+		},
+		onSuccess: (data) => {
+			if (data.commentId && data.post.slug) {
+				router.push(`/post/${data.post.slug}?comment=${data.commentId}`);
+			} else if (data.post.slug) {
+				router.push(`/post/${data.post.slug}`);
+			}
+
+			setSelectedId(null);
+		},
+		onError: () => {
+			setSelectedId(null);
+			console.error('Failed to read notification');
+		},
+	});
+
+	const handleOnClick = ({ id }: { id: string }) => {
+		mutation.mutate({ id });
 	};
 
 	return (
-		<div>
+		<>
 			{notifications.length > 0 ? (
-				<div className="flex flex-col gap-2">
+				<div className="flex flex-col gap-4 justify-start">
 					{notifications.map(
-						({ id, type, createdAt, isRead, actor, postSlug, commentId }) => (
-							<Button
+						({ id, type, createdAt, isRead, actor, commentId, postSlug }) => (
+							<NotificationItem
 								key={id}
-								variant="ghost"
 								onClick={() => {
-									handleOnClick({
-										postSlug,
-										commentId,
-									});
-									console.info(postSlug);
-									console.info(commentId);
-								}}
-								className="h-max w-max p-0"
-							>
-								<NotificationItem
-									username={actor.username}
-									userImage={actor.image}
-									type={type}
-									createdAt={createdAt}
-									className={
-										isRead
-											? 'bg-gray-100 dark:bg-gray-800'
-											: 'bg-blue-100 dark:bg-blue-900'
+									setSelectedId(id);
+
+									if (!isRead) {
+										handleOnClick({
+											id,
+										});
+									} else {
+										if (commentId && postSlug) {
+											router.push(`/post/${postSlug}?comment=${commentId}`);
+										} else if (postSlug) {
+											router.push(`/post/${postSlug}`);
+										}
+										setSelectedId(null);
 									}
-								/>
-							</Button>
+								}}
+								isLoading={selectedId === id}
+								isRead={isRead}
+								username={actor.username}
+								userImage={actor.image}
+								type={type}
+								createdAt={createdAt}
+							/>
 						)
 					)}
 				</div>
 			) : (
-				<p>No notifications</p>
+				<p className="mt-6">No notifications</p>
 			)}
-		</div>
+		</>
 	);
 };

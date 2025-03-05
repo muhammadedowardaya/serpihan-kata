@@ -18,7 +18,7 @@ const DashboardBreadcrumb = () => {
 	const segments = pathname.split('/').filter((segment) => segment);
 
 	return (
-		<div className="pl-[50px]">
+		<div className="">
 			<Breadcrumb>
 				<BreadcrumbList>
 					{segments.map((segment, index) => {
@@ -29,7 +29,7 @@ const DashboardBreadcrumb = () => {
 							<React.Fragment key={href}>
 								<BreadcrumbItem>
 									{isLast ? (
-										<BreadcrumbPage>
+										<BreadcrumbPage className="font-bold">
 											{segment === 'posts'
 												? 'View Post'
 												: segment === 'saved-posts'
@@ -41,7 +41,12 @@ const DashboardBreadcrumb = () => {
 												: segment}
 										</BreadcrumbPage>
 									) : (
-										<BreadcrumbLink href={href}>{segment}</BreadcrumbLink>
+										<BreadcrumbLink
+											className="underline underline-offset-2 text-slate-500 md:text-slate-200 md:hover:text-white"
+											href={href}
+										>
+											{segment}
+										</BreadcrumbLink>
 									)}
 								</BreadcrumbItem>
 								{!isLast && <BreadcrumbSeparator />}

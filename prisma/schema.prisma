@@ -47,10 +47,23 @@ model user {
     session       session[]
     likes         like[]
     savedPosts    savedPost[]
-    socialMediaId String?        @unique
-    socialMedia   socialMedia?   @relation(fields: [socialMediaId], references: [id], onDelete: Cascade)
+    socialMedia   socialMedia?
     notifications notification[] @relation("UserNotification") // Notifikasi yang diterima
     actions       notification[] @relation("ActorNotification") // Notifikasi yang dipicu oleh user
+}
+
+model socialMedia {
+    id        String  @id @default(cuid())
+    instagram String?
+    tiktok    String?
+    facebook  String?
+    github    String?
+    youtube   String?
+    linkedin  String?
+    other     String?
+
+    userId String? @unique
+    user   user?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model tag {
@@ -114,7 +127,7 @@ model comment {
     id      String  @id @default(cuid())
     message String
     liked   Int     @default(0)
-    user    user?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+    user    user?   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId  String?
     post    post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId  String?
@@ -142,6 +155,7 @@ model post {
     description   String
     content       String         @db.LongText
     thumbnail     String?
+    isDraft       Boolean        @default(true)
     views         Int            @default(0)
     userId        String
     user          user           @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Post_userId_fkey")
@@ -156,19 +170,6 @@ model post {
     postTag   postTag[]
 
     @@index([userId], map: "Post_userId_idx")
-}
-
-model socialMedia {
-    id        String  @id
-    instagram String?
-    tiktok    String?
-    facebook  String?
-    github    String?
-    youtube   String?
-    linkedin  String?
-    other     String?
-
-    user user?
 }
 
 model savedPost {

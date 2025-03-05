@@ -77,12 +77,18 @@ export const PostCommentButton = ({
 				}}
 			>
 				<DialogTrigger asChild>
-					<div className="flex items-center gap-1">
-						<MessageCircle strokeWidth={1} className={className} />
+					<Button
+						variant="ghost"
+						className="p-0 m-0 h-max flex items-center gap-1 group"
+					>
+						<MessageCircle
+							strokeWidth={1}
+							className={`${className} group-hover:fill-primary text-2xl`}
+						/>
 						{getCommentCount.data && getCommentCount.data > 0 && (
 							<span className="text-xs">{getCommentCount.data}</span>
 						)}
-					</div>
+					</Button>
 				</DialogTrigger>
 
 				<DialogContent className="h-screen max-w-[600px] mx-auto max-h-[85vh] px-8 flex flex-col">
@@ -95,13 +101,26 @@ export const PostCommentButton = ({
 					</DialogHeader>
 
 					{/* Bagian yang memiliki scroll */}
-					<section className="border-y border-slate-400 rounded-md pl-4 pr-0 overflow-hidden grid flex-1">
+					<section className="relative border-y-2 border-primary rounded-md pl-2 pt-2 pr-0 overflow-hidden grid flex-1">
 						<ScrollArea className="pr-5">
 							<CommentList
 								comments={data.comments as unknown as Comment[]}
 								postId={data.id as string}
 							/>
 						</ScrollArea>
+
+						<AnimatePresence initial={false}>
+							{replyTo && (
+								<motion.div
+									className="absolute inset-0 z-40 bg-background/20 backdrop-blur-[2px] rounded-md border border-transparent border-t-white/10 border-b-black/10 shadow-lg"
+									key={`background-${replyTo.id}`}
+									initial={{ opacity: 0, scale: 0.95 }}
+									animate={{ opacity: 1, scale: 1.02 }}
+									transition={{ ease: 'easeInOut', duration: 0.6 }}
+									exit={{ opacity: 0, scale: 0.95 }}
+								></motion.div>
+							)}
+						</AnimatePresence>
 					</section>
 
 					{/* Footer tetap di tempatnya */}
@@ -116,7 +135,10 @@ export const PostCommentButton = ({
 									exit={{ opacity: 0, scale: 0.9, y: 20 }}
 									transition={{ type: 'spring', stiffness: 200, damping: 20 }}
 								>
-									<CommentButton data={data} />
+									<CommentButton
+										data={data}
+										className="w-max bg-amber-300 hover:bg-amber-400 border border-primary text-slate-900"
+									/>
 								</motion.div>
 							</AnimatePresence>
 						</DialogFooter>
@@ -126,7 +148,7 @@ export const PostCommentButton = ({
 					<AnimatePresence>
 						{replyTo && (
 							<motion.div
-								className="ml-6 mt-4 fixed bottom-6 right-6 w-[95%] max-w-[400px] z-40 bg-white border border-slate-500 rounded-md shadow-lg"
+								className="ml-6 mt-4 fixed bottom-4 right-2 w-[95%] max-w-[400px] z-40 bg-background text-background-foreground border border-slate-500 rounded-md"
 								key={`comment-input-${replyTo.id}`}
 								initial={{ opacity: 0, scale: 0.9, y: 40 }}
 								animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -154,7 +176,7 @@ export const PostCommentButton = ({
 									| 'info'
 							}
 							title={alertPostComment?.title as string}
-							description={alertPostComment?.description}
+							description={<span>{alertPostComment?.description}</span>}
 						/>
 					)}
 				</DialogContent>
@@ -171,12 +193,18 @@ export const PostCommentButton = ({
 			}}
 		>
 			<DrawerTrigger asChild>
-				<div className="flex items-center gap-1">
-					<MessageCircle strokeWidth={1} className={className} />
+				<Button
+					variant="ghost"
+					className="p-0 m-0 h-max flex items-center gap-1 group"
+				>
+					<MessageCircle
+						strokeWidth={1}
+						className={`${className} group-hover:fill-primary`}
+					/>
 					{getCommentCount.data && getCommentCount.data > 0 && (
 						<span className="text-xs">{getCommentCount.data}</span>
 					)}
-				</div>
+				</Button>
 			</DrawerTrigger>
 
 			<DrawerContent className="h-screen max-h-[85vh] max-w-[600px] mx-auto px-4 flex flex-col">
@@ -187,17 +215,34 @@ export const PostCommentButton = ({
 					</DrawerDescription>
 				</DrawerHeader>
 
-				<section className="border-y border-slate-400 rounded-md pl-2 pt-2 pr-0 overflow-hidden grid flex-1">
+				<section className="relative border-y-2 border-primary rounded-md pl-2 pt-2 pr-0 overflow-hidden grid flex-1">
 					<ScrollArea className="pr-4">
 						<CommentList
 							comments={data.comments as unknown as Comment[]}
 							postId={data.id}
 						/>
 					</ScrollArea>
+					<AnimatePresence initial={false}>
+						{replyTo && (
+							<motion.div
+								className="absolute inset-0 z-40 bg-background/20 backdrop-blur-[2px] rounded-md border border-transparent border-t-white/10 border-b-black/10 shadow-lg"
+								key={`background-${replyTo.id}`}
+								initial={{ opacity: 0, scale: 0.95 }}
+								animate={{ opacity: 1, scale: 1.02 }}
+								transition={{ ease: 'easeInOut', duration: 0.6 }}
+								exit={{ opacity: 0, scale: 0.95 }}
+							></motion.div>
+						)}
+					</AnimatePresence>
 				</section>
 
 				<DrawerFooter className="flex flex-row justify-end px-0 pt-4 pb-8">
-					{!replyTo && <CommentButton data={data} className="w-max" />}
+					{!replyTo && (
+						<CommentButton
+							data={data}
+							className="w-max bg-amber-300 hover:bg-amber-400 border border-primary text-slate-900"
+						/>
+					)}
 					<DrawerClose asChild className="absolute top-2 right-2">
 						<Button
 							variant="outline"
@@ -213,7 +258,7 @@ export const PostCommentButton = ({
 				<AnimatePresence initial={false}>
 					{replyTo && (
 						<motion.div
-							className="ml-6 mt-4 fixed bottom-4 right-2 w-[95%] max-w-[400px] z-40 bg-white border border-slate-500 rounded-md"
+							className="ml-6 mt-4 fixed bottom-4 right-2 w-[95%] max-w-[400px] z-40 bg-background text-background-foreground border border-slate-500 rounded-md"
 							key={`comment-input-${replyTo.id}`}
 							initial={{ opacity: 0, scale: 0.95 }}
 							animate={{ opacity: 1, scale: 1 }}
@@ -237,7 +282,7 @@ export const PostCommentButton = ({
 							alertPostComment?.type as 'error' | 'success' | 'warning' | 'info'
 						}
 						title={alertPostComment?.title as string}
-						description={alertPostComment?.description}
+						description={<span>{alertPostComment?.description}</span>}
 					/>
 				)}
 			</DrawerContent>

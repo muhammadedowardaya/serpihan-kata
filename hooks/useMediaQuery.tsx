@@ -5,7 +5,6 @@ export const useMediaQuery = (query: string): boolean => {
 		if (typeof window === 'undefined') {
 			return false;
 		}
-
 		return window.matchMedia(query).matches;
 	});
 
@@ -16,10 +15,14 @@ export const useMediaQuery = (query: string): boolean => {
 
 		const updateMatch = () => setMatches(mediaQueryList.matches);
 
-		window.addEventListener('change', updateMatch);
+		// Pastikan matches diperbarui langsung saat komponen mount
+		updateMatch();
+
+		// Gunakan event listener langsung dari mediaQueryList
+		mediaQueryList.addEventListener('change', updateMatch);
 
 		return () => {
-			window.removeEventListener('change', updateMatch);
+			mediaQueryList.removeEventListener('change', updateMatch);
 		};
 	}, [query]);
 

@@ -35,8 +35,8 @@ export const LogoutButton = () => {
 				<span>Logout</span>
 			</Button>
 			<MyAlert
-				title="Logout"
-				description="Are you sure you want to log out?"
+				title="Logout?"
+				description={<span>Are you sure you want to log out?</span>}
 				open={open}
 				textConfirmButton="Logout"
 				onConfirm={logoutHandler}

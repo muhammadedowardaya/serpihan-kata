@@ -24,11 +24,15 @@ import { User } from 'next-auth';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/jotai';
 import { useRouter } from 'next/navigation';
+import { ActionButtonMyPosts } from './ActionButtonMyPosts';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const Navbar = ({ className }: { className?: string }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const user = useAtomValue(userAtom);
+
+	const xs = useMediaQuery('(min-width: 460px)');
 
 	const router = useRouter();
 
@@ -83,9 +87,10 @@ const Navbar = ({ className }: { className?: string }) => {
 				<div className="flex shrink-0 items-center gap-5">
 					{user ? (
 						<>
-							<Link href="/dashboard/posts/create" className="hidden sm:block">
+							{/* <Link href="/dashboard/posts/create" className="hidden sm:block">
 								<span className="text-sm md:text-base ">Create</span>
-							</Link>
+							</Link> */}
+							<ActionButtonMyPosts />
 
 							<Menubar className="border-none shadow-none">
 								<MenubarMenu>
@@ -96,19 +101,20 @@ const Navbar = ({ className }: { className?: string }) => {
 									>
 										<div className="flex gap-4 items-center">
 											{user?.name && user?.name?.length > 23 ? (
-												<span className="text-sm md:text-base hidden xs:inline-block font-normal">
-													@{user?.username}
+												<span className="text-sm md:text-base hidden xxs:inline-block font-normal">
+													{xs ? user?.name : `@${user?.username}`}
 												</span>
 											) : (
-												<span className="text-sm md:text-base hidden xs:inline-block font-normal">
-													{user?.name}
+												<span className="text-sm md:text-base hidden xxs:inline-block font-normal">
+													{!xs ? `@${user?.username}` : user?.name}
 												</span>
 											)}
 											<div className="relative w-10 h-10 border-none">
-												<Avatar className="w-full h-full bg-secondary border border-white">
+												<Avatar className="w-full h-full bg-secondary border border-primary">
 													<AvatarImage
 														src={user?.image as string}
 														alt={user?.name as string}
+														className="object-cover"
 													/>
 													<AvatarFallback>
 														{avatarFallbackLetter.toUpperCase()}
@@ -136,7 +142,7 @@ const Navbar = ({ className }: { className?: string }) => {
 										<MenubarItem asChild>
 											<Link href="/dashboard/profile" className="navbar-item">
 												<UserIcon />
-												<span>@{user?.username}</span>
+												<span>My Profile</span>
 											</Link>
 										</MenubarItem>
 										<MenubarSeparator />

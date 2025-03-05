@@ -15,6 +15,8 @@ import { CommentReplyButton } from './CommentReplyButton';
 import { useAtom } from 'jotai';
 import { alertPostCommentAtom } from '@/jotai';
 import { timeAgo } from '@/lib/utils';
+import { Button } from './ui/button';
+import Link from 'next/link';
 
 const CommentReplyItem = ({
 	comment,
@@ -26,24 +28,6 @@ const CommentReplyItem = ({
 	const { data: session } = useSession();
 
 	const [, setAlertPostComment] = useAtom(alertPostCommentAtom);
-
-	let avatarFallbackLetter = '';
-	const fullNameArray = session?.user?.name?.split(' ');
-
-	if (fullNameArray) {
-		let firstLetter = '';
-		let secondLetter = '';
-
-		if (fullNameArray.length > 1) {
-			firstLetter = fullNameArray[0].at(0) as string;
-			secondLetter = fullNameArray[1].at(0) as string;
-		} else {
-			firstLetter = fullNameArray[0].at(0) as string;
-			secondLetter = fullNameArray[0].at(1) as string;
-		}
-
-		avatarFallbackLetter = firstLetter + secondLetter;
-	}
 
 	const [isLiked, setIsLiked] = useState(false);
 	const [likesLength, setLikesLength] = useState(0);
@@ -168,56 +152,89 @@ const CommentReplyItem = ({
 	}
 
 	return (
-		<div className="border border-slate-400 rounded-md p-2 pb-2 bg-slate-100 flex-1">
+		<article className="border border-tertiary-forground rounded-md p-[10px] pb-2 bg-primary text-primary-foreground h-max">
 			<div className="flex gap-x-4">
-				<Avatar className="h-8 w-8">
-					<AvatarImage src={comment?.user?.image} />
-					<AvatarFallback className="bg-slate-400 text-white border border-white">
-						{avatarFallbackLetter}
-					</AvatarFallback>
-				</Avatar>
+				<Link href={`/author/${comment.user?.username}`}>
+					<Avatar className="h-8 w-8 bg-secondary hover:bg-secondary-hover text-secondary-foreground border-2 border-border">
+						<AvatarImage
+							src={comment?.user?.image}
+							alt={`${comment?.user?.username}'s avatar`}
+							className="object-cover"
+						/>
+						{/* Waktu komentar */}
+						<AvatarFallback>
+							{comment?.user?.username.slice(0, 2).toUpperCase()}
+						</AvatarFallback>
+					</Avatar>
+				</Link>
 				<div className="w-full flex flex-col justify-evenly">
-					<div className="flex items-center gap-1 flex-wrap text-xs text-slate-400 font-medium">
-						<span>{comment?.user?.username}</span>
-						<ChevronRight size={10} className="fill-slate-900 inline-block" />
+					<div className="flex items-center gap-1 flex-wrap text-xs">
+						<h2
+							id={`comment-author-${comment.user?.username}`}
+							className="text-yellow-200 text-xs"
+						>
+							{comment?.user.username}
+						</h2>
+						<ChevronRight size={10} className="fill-yellow-200 inline-block" />
 						{comment?.replyTo ? (
-							<span>{comment?.replyTo?.user?.username}</span>
+							<span className="text-yellow-200">
+								{comment?.replyTo?.user?.username}
+							</span>
 						) : (
-							<span>{comment?.parent?.user?.username}</span>
+							<span className="text-yellow-200">
+								{comment?.parent?.user?.username}
+							</span>
 						)}
 					</div>
-					<div className="mt-1 text-slate-900 text-xs">{comment?.message}</div>
+					<div className="mt-1 text-white text-xs">{comment?.message}</div>
 				</div>
 			</div>
 
-			<div className="flex items-center justify-between gap-x-4 mt-4">
-				<span className="text-xs text-slate-600">
+			<div className="flex items-center justify-between gap-x-4 mt-4 pr-1">
+				<span className="text-xs text-primary-foreground">
 					{timeAgo(new Date(comment?.createdAt).toISOString())}
 				</span>
 				<div className="flex items-center justify-end gap-x-4 w-max">
-					<div className="flex items-center gap-x-1">
+					<Button
+						onClick={likeHandler}
+						variant="ghost"
+						className="flex items-center gap-x-1 p-0 m-0 h-max group"
+						aria-pressed={isLiked}
+						aria-label={isLiked ? 'Unlike this comment' : 'Like this comment'}
+					>
 						<ThumbsUp
-							onClick={likeHandler}
 							strokeWidth={1}
 							size={15}
-							className={`${isLiked ? 'fill-sky-400' : ''} hover:fill-sky-400`}
+							className={`${
+								isLiked ? 'fill-tertiary' : ''
+							} group-hover:fill-tertiary`}
+							aria-hidden="true"
 						/>
-						<span className="text-sm">{likesLength}</span>
-					</div>
+						<span className="text-sm" aria-live="polite">
+							{likesLength}
+						</span>
+					</Button>
 
 					<CommentReplyButton comment={comment} parentId={parentId} />
 
 					{comment?.user?.id === session?.user?.id && (
-						<Trash
-							size={15}
-							onClick={deleteCommentHandler}
-							strokeWidth={1}
-							className="hover:fill-red-300"
-						/>
+						<Button
+							variant="ghost"
+							className="p-0 h-max group"
+							onClick={() => deleteCommentHandler()}
+							aria-label="Delete this comment"
+						>
+							<Trash
+								size={15}
+								strokeWidth={1}
+								className="group-hover:fill-tertiary"
+								aria-hidden="true"
+							/>
+						</Button>
 					)}
 				</div>
 			</div>
-		</div>
+		</article>
 	);
 };
 

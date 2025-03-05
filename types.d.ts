@@ -66,6 +66,7 @@ interface SocialMedia {
 
 interface Post {
 	id: string;
+	isDraft: boolean;
 	slug: string;
 	title: string;
 	description: string;

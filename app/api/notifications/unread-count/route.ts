@@ -10,6 +10,7 @@ export const GET = async () => {
 		const unreadCount = await prisma.notification.count({
 			where: {
 				userId,
+				isRead: false,
 			},
 		});
 

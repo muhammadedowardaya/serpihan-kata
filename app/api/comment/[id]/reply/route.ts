@@ -51,11 +51,7 @@ export const POST = async (
 								},
 						  }
 						: {}),
-					post: {
-						connect: {
-							id: postId,
-						},
-					},
+					postId: postId,
 					message, // komentar
 				},
 				select: {

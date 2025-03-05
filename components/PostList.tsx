@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { filterByTagsAtom } from '@/jotai';
 import axios from 'axios';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+// import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Loader } from './Loader';
 import { useSearchParams } from 'next/navigation';
 
@@ -20,8 +20,8 @@ export const PostList = ({
 }) => {
 	const [filterByTags] = useAtom(filterByTagsAtom);
 
-	const xs = useMediaQuery('(min-width: 360px)');
-	const sm = useMediaQuery('(min-width: 640px)');
+	// const xs = useMediaQuery('(min-width: 360px)');
+	// const sm = useMediaQuery('(min-width: 640px)');
 
 	const searchParams = useSearchParams();
 	const query = searchParams.get('query') || '';

@@ -18,7 +18,11 @@ export const POST = async (request: Request) => {
 		const draft = await prisma.post.create({
 			data: {
 				id: postId,
-				userId,
+				user: {
+					connect: {
+						id: userId,
+					},
+				},
 				title: 'Draft Title',
 				slug: postId,
 				description: 'Draft Description',

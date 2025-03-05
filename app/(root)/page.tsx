@@ -15,6 +15,9 @@ import Link from 'next/link';
 
 export default async function Home() {
 	const popularPosts = await prisma.post.findMany({
+		where: {
+			isDraft: false,
+		},
 		take: 3,
 		orderBy: {
 			// views: 'desc',

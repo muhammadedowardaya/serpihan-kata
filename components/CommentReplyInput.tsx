@@ -64,17 +64,12 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 					queryKey: ['commentCount', comment.post.id],
 				}),
 				queryClient.invalidateQueries({
-					queryKey: ['replies', comment.parentId],
+					queryKey: ['replies', comment.parentId || comment.id],
 				}),
 				queryClient.invalidateQueries({
 					queryKey: ['post', response.targetUser.id],
 				}),
 			]);
-
-			console.info(
-				'invalidateQueries replies dengan isi key',
-				comment.parentId
-			);
 
 			Toast.fire('Reply added successfully', '', 'success');
 
@@ -122,7 +117,7 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 	return (
 		<div className="flex flex-col gap-4 w-full h-[300px] border p-4 pt-2 rounded shadow-xs">
 			<span
-				className="text-gray-500 mt-2 ml-2 text-sm"
+				className="text-background-foreground mt-2 ml-2 text-sm"
 				aria-label={`Reply to ${replyTo?.message}`}
 			>
 				Reply to
@@ -132,7 +127,7 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 			</span>
 
 			<Textarea
-				className="resize-none h-[100px] w-full border border-gray-400 rounded p-2 flex-1"
+				className="resize-none h-[100px] w-full border bg-secondary text-secondary-foreground border-gray-400 rounded p-2 flex-1"
 				onChange={(e) => setCommentValue(e.target.value)}
 				value={commentValue}
 				placeholder="Type your reply here..."
@@ -141,10 +136,11 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 			/>
 			<div className="flex justify-end items-center gap-4">
 				<Button
-					variant="outline"
+					variant="ghost"
 					onClick={() => setReplyTo(null)}
 					aria-label="Cancel reply"
 					disabled={addComment.isPending}
+					className="border border-border hover:bg-background/80"
 				>
 					<XIcon size={16} className="mr-2" aria-hidden="true" />
 					Cancel
@@ -154,15 +150,14 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 					disabled={addComment.isPending}
 					aria-pressed={addComment.isPending}
 					aria-label="Send reply"
+					variant="accent"
 				>
 					{addComment.isPending ? (
-						<LoaderCircle className="animate-spin" aria-hidden="true" />
+						<LoaderCircle className="animate-spin" aria-label="Loading" />
 					) : (
 						<SendHorizonal size={16} aria-hidden="true" />
 					)}
-					<span className="ml-2" aria-hidden="true">
-						Send
-					</span>
+					<span className="ml-2">Send</span>
 				</Button>
 			</div>
 
@@ -172,7 +167,7 @@ export const CommentReplyInput = ({ comment }: { comment: Comment }) => {
 				textConfirmButton="Ok"
 				type={alert?.type as 'error' | 'success' | 'warning' | 'info'}
 				title={alert?.title as string}
-				description={alert?.description}
+				description={<span>{alert?.description}</span>}
 			/>
 		</div>
 	);

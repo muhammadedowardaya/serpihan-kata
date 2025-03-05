@@ -33,8 +33,13 @@ export const POST = async (request: NextRequest) => {
 				email,
 				password: hashedPassword, // Simpan password yang sudah di-hash
 				socialMedia: {
-					create: {
-						id: email,
+					connectOrCreate: {
+						where: {
+							id: email,
+						},
+						create: {
+							id: email,
+						},
 					},
 				},
 				account: {

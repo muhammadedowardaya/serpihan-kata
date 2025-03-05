@@ -118,7 +118,7 @@ export const SidebarMenuItemList = ({
 								className={`${
 									pathname === item.url ||
 									pathname.includes(`${item.url.split('/')[2]}/`)
-										? 'bg-primary text-primary-foreground'
+										? 'bg-secondary text-secondary-foreground'
 										: ''
 								} flex items-center space-x-2 p-2 rounded`}
 							>
@@ -137,9 +137,9 @@ export const SidebarMenuItemList = ({
 								className={`${
 									pathname === item.url ||
 									pathname.includes(`${item.url.split('/')[2]}/`)
-										? 'bg-primary text-primary-foreground'
+										? 'bg-secondary text-secondary-foreground'
 										: ''
-								} flex items-center space-x-2 p-2 rounded hover:bg-primary hover:text-primary-foreground`}
+								} flex items-center space-x-2 p-2 rounded hover:bg-secondary hover:text-secondary-foreground`}
 							>
 								<item.icon />
 								<span>{item.title}</span>

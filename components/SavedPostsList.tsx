@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Toast } from '@/lib/sweetalert';
+import { Loader } from './Loader';
 
 export const SavedPostsList = ({
 	savedPosts,
@@ -60,17 +61,21 @@ export const SavedPostsList = ({
 		});
 	};
 
+	if (getSavedPosts.isPending) {
+		return <Loader text="Get saved post list..." />;
+	}
+
 	if (savedPosts.length === 0) {
 		return (
-			<div>
-				<div className="text-center text-slate-400">No saved posts yet</div>
+			<div className="mt-4">
+				<div className="text-center">No saved posts yet</div>
 			</div>
 		);
 	}
 
 	return (
-		<div>
-            <h1 className='text-2xl mb-4'>Saved Posts</h1>
+		<div className="my-10">
+			<h1 className="text-base md:text-2xl mb-4">Saved Posts</h1>
 			<div>
 				{getSavedPosts.data.map((savedPost: SavedPost) => (
 					<PostCard

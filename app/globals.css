@@ -27,6 +27,14 @@
 	--secondary-hover: oklch(94% 0.1301 108.42);
 	--secondary-foreground: oklch(40.63% 0.0305 211.96);
 
+	/* --tertiary: oklch(88.6% 0.1068 92.6);
+	--tertiary-hover: oklch(94.6% 0.1068 92.6);
+	--tertiary-foreground: oklch(41.76% 0.06 143.64); */
+
+	--tertiary: oklch(94.19% 0.0933 112.65);
+	--tertiary-hover: oklch(94.19% 0.0933 112.65);
+	--tertiary-foreground: oklch(61.03% 0.0777 76.34);
+
 	--highlight: oklch(65% 0.22 150);
 	--highlight-hover: oklch(60% 0.23 150);
 	--highlight-foreground: oklch(100% 0 0);
@@ -91,6 +99,10 @@
 	--color-secondary-hover: var(--secondary-hover);
 	--color-secondary-foreground: var(--secondary-foreground);
 
+	--color-tertiary: var(--tertiary);
+	--color-tertiary-hover: var(--tertiary-hover);
+	--color-tertiary-foreground: var(--tertiary-foreground);
+
 	--color-accent: var(--accent);
 	--color-accent-hover: var(--accent-hover);
 	--color-accent-foreground: var(--accent-foreground);
@@ -119,11 +131,11 @@
 	--color-error-hover: var(--error-hover);
 	--color-error-foreground: var(--error-foreground);
 
-	/* --color-border: hsl(var(--border));
-	--color-input: hsl(var(--input));
-	--color-ring: hsl(var(--ring));
+	--color-border: var(--primary-foreground);
+	--color-input: var(--primary-foreground);
+	--color-ring: var(--primary-foreground);
 
-	--color-chart-1: hsl(var(--chart-1));
+	/*--color-chart-1: hsl(var(--chart-1));
 	--color-chart-2: hsl(var(--chart-2));
 	--color-chart-3: hsl(var(--chart-3));
 	--color-chart-4: hsl(var(--chart-4));
@@ -145,27 +157,6 @@
 	--animate-accordion-down: accordion-down 0.2s ease-out;
 	--animate-accordion-up: accordion-up 0.2s ease-out; */
 }
-
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-
-/* *,
-::after,
-::before,
-::backdrop,
-::file-selector-button {
-	border-color: var(--color-gray-200, currentColor);
-} */
-
-/* body {
-	@apply bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-inter font-normal text-xs sm:text-sm md:text-base lg:text-lg;
-} */
 
 .button-warning {
 	background-color: var(--color-warning);

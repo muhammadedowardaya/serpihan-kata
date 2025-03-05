@@ -24,6 +24,7 @@ export const GET = async (request: NextRequest) => {
 		// Query posts dengan Prisma
 		const posts = await prisma.post.findMany({
 			where: {
+				isDraft: false,
 				...(tagsValue.length > 0 && {
 					postTag: {
 						some: {

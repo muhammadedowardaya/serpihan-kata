@@ -1,11 +1,8 @@
-import React from 'react'
+import { Loader } from '@/components/Loader';
+import React from 'react';
 
 const DashboardLoading = () => {
-  return (
-    <div className="min-h-screen w-full flex justify-center items-center bg-[#171717] text-white">
-       <h1>Loading...</h1>
-    </div>
-  )
-}
+	return <Loader />;
+};
 
-export default DashboardLoading
+export default DashboardLoading;

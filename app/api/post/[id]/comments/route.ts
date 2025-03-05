@@ -16,6 +16,7 @@ export const GET = async (
                 c.*, 
                 u.id AS userId, 
                 u.name AS userName, 
+                u.username AS userUsername, 
                 u.email AS userEmail, 
                 u.image AS userImage,
                 p.id AS postId,
@@ -37,7 +38,8 @@ export const GET = async (
 			user: comment.userId
 				? {
 						id: comment.userId,
-						username: comment.userName,
+						name: comment.userName,
+						username: comment.userUsername,
 						email: comment.userEmail,
 						image: comment.userImage,
 				  }

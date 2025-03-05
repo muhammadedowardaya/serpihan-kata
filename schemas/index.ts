@@ -35,7 +35,7 @@ export const userSchema = z.object({
 		),
 	bio: z
 		.string()
-		.max(400, 'Bio must not exceed 50 characters.')
+		.max(150, 'Bio must not exceed 150 characters.')
 		.or(z.literal(''))
 		.optional(),
 	socialMediaId: z.string().optional(),
@@ -69,7 +69,10 @@ export const userSchema = z.object({
 });
 
 export const postSchema = z.object({
-	title: z.string().min(3, 'Title must be at least 3 characters.'),
+	title: z
+		.string()
+		.min(3, 'Title must be at least 3 characters.')
+		.max(50, 'Title must not exceed 50 characters.'),
 	description: z
 		.string()
 		.min(20, 'Description must be at least 20 characters.')
