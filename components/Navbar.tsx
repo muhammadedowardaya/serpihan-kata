@@ -90,7 +90,9 @@ const Navbar = ({ className }: { className?: string }) => {
 							{/* <Link href="/dashboard/posts/create" className="hidden sm:block">
 								<span className="text-sm md:text-base ">Create</span>
 							</Link> */}
-							<ActionButtonMyPosts />
+							<div className="hidden xs:block">
+								<ActionButtonMyPosts />
+							</div>
 
 							<Menubar className="border-none shadow-none">
 								<MenubarMenu>
@@ -116,7 +118,7 @@ const Navbar = ({ className }: { className?: string }) => {
 														alt={user?.name as string}
 														className="object-cover"
 													/>
-													<AvatarFallback>
+													<AvatarFallback className="bg-secondary border border-primary">
 														{avatarFallbackLetter.toUpperCase()}
 													</AvatarFallback>
 												</Avatar>

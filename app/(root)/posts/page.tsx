@@ -74,16 +74,16 @@ export default async function PostsPage({
 
 	return (
 		<div className="relative">
-			<Section className="space-y-6 relative pt-0 pb-6">
+			<Section className="relative pt-0 pb-6">
 				{/* Header */}
-				<div className="flex items-center gap-x-4 mb-4 mt-8 sm:mt-0 px-1 justify-center text-center">
+				<div className="bg-background relative z-40 flex items-center gap-x-4 pt-8 px-1 justify-center text-center">
 					<h2 className="text-2xl sm:text-4xl font-bold font-satisfy">
 						Jelajahi Beragam Tulisan
 					</h2>
 				</div>
-				<div className="xs:sticky bg-background top-0 z-40 pb-4 pt-6 md:pt-0 shadow-border border-b padding-content">
+				<div className="relative xs:sticky bg-background top-0 z-40 py-4 shadow-border border-b padding-content">
 					{/* Search & Filter */}
-					<div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 justify-center">
+					<div className="flex flex-col min-[780px]:flex-row items-center gap-4 md:gap-2 justify-center">
 						<SearchForm
 							query={query}
 							className="w-full max-w-[500px] h-[35px]"

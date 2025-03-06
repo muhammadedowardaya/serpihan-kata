@@ -95,7 +95,9 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 					{user ? (
 						<>
 							{!pathname.startsWith('/dashboard/posts') && (
-								<ActionButtonMyPosts />
+								<div className="hidden xs:block">
+									<ActionButtonMyPosts />
+								</div>
 							)}
 
 							<Menubar className="border-none shadow-none">
@@ -120,9 +122,9 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 													<AvatarImage
 														src={user?.image as string}
 														alt={user?.name as string}
-														className="object-cover"
+														className="object-cover bg-secondary border border-primary"
 													/>
-													<AvatarFallback>
+													<AvatarFallback className="bg-secondary border border-primary">
 														{avatarFallbackLetter.toUpperCase()}
 													</AvatarFallback>
 												</Avatar>
