@@ -8,9 +8,6 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
 	title: 'Detail Postingan',
 	description: 'Detail postingan pada Serpihan Kata',
-	icons: {
-		icon: '/favicon.ico',
-	},
 };
 
 const ViewPost = async ({ params }: { params: Promise<{ slug: string }> }) => {

@@ -41,13 +41,8 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			background-color: var(--background);
-			color: var(--background-foreground);
-
-			@media (min-width: 1024px) {
-				background-color: var(--accent);
-				color: #fff;
-			}
+			background-color: var(--accent);
+			color: #fff;
 		}
 
 		.content-dashboard {

@@ -2,9 +2,11 @@ import { Skeleton } from './ui/skeleton';
 
 import '@/styles/my-profile.css';
 
-export const MyProfileSkeleton = () => {
+export const MyProfileSkeleton = ({ className }: { className?: string }) => {
 	return (
-		<div className="my-profile mx-auto rounded-xl overflow-hidden shadow-lg relative z-20">
+		<div
+			className={`my-profile rounded-xl overflow-hidden shadow-lg relative z-20 ${className}`}
+		>
 			{/* Profile Header */}
 
 			<div className="my-profile__image">

@@ -12,9 +12,6 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
 	title: 'Post list',
 	description: 'Daftar postingan pada Serpihan Kata',
-	icons: {
-		icon: '/favicon.ico',
-	},
 };
 
 export default async function PostsPage({

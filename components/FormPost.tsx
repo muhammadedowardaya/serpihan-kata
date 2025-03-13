@@ -232,22 +232,20 @@ const FormPost = ({ defaultValues }: { defaultValues?: Post | null }) => {
 							postData.data.thumbnailPreview,
 							postData.data.thumbnailFileName
 						);
-						form.setValue('thumbnail', file ?? null);
+						form.setValue('thumbnail', file || null);
+						console.info('set thumbnail dengan value ', file);
 
 						setPostData((prev) => ({
 							...prev,
 							thumbnail: file,
 						}));
 					}
-				} else {
-					form.setValue('thumbnail', null);
 				}
 			}
 		};
 
 		if (postId.state === 'hasData' && !initialEditPost.current) {
 			restoreFileOnce();
-
 			if (postData.state === 'hasData') {
 				if (postData.data.content && defaultValues?.content) {
 					initialEditPost.current = true;
@@ -282,6 +280,8 @@ const FormPost = ({ defaultValues }: { defaultValues?: Post | null }) => {
 				}));
 
 				setPreviewThumbnail(base64string);
+
+				form.setValue('thumbnail', file, { shouldValidate: true });
 			};
 
 			reader.readAsDataURL(file);
@@ -407,7 +407,7 @@ const FormPost = ({ defaultValues }: { defaultValues?: Post | null }) => {
 											{field.value.map((tag) => (
 												<div
 													key={tag.id}
-													className="select-none flex items-center gap-2 text-sm lowercase bg-white border border-slate-300 text-slate-900 w-max pl-3 pr-1 py-[2px] rounded-full"
+													className="select-none flex items-center gap-2 text-sm lowercase bg-secondary border border-primary bg-primary w-max pl-3 pr-1 py-[2px] rounded-full"
 												>
 													<span>{tag.label}</span>
 													<Button
@@ -559,7 +559,12 @@ const FormPost = ({ defaultValues }: { defaultValues?: Post | null }) => {
 				/>
 
 				<div className="flex items-center gap-4">
-					<Button type="submit" disabled={mutation.isPending}>
+					<Button
+						variant="ghost"
+						className="text-white bg-success hover:bg-success/80"
+						type="submit"
+						disabled={mutation.isPending}
+					>
 						{mutation.isPending ? (
 							<div className="flex items-center gap-2">
 								<LoaderCircle size={20} className="animate-spin" />

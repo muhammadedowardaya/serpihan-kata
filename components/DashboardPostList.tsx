@@ -1,7 +1,7 @@
 'use client';
 
 import { Post } from '@/types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import PostCard from './PostCard';
@@ -12,8 +12,23 @@ import EditFormPost from './FormPost';
 import { Toast } from '@/lib/sweetalert';
 import Swal from 'sweetalert2';
 
-export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
+export interface DashboardPostListProps {
+	initialData: {
+		published: Post[];
+		unpublished: Post[];
+	};
+}
+
+export const DashboardPostList = ({
+	initialData,
+}: {
+	initialData: DashboardPostListProps;
+}) => {
 	const [editPostId, setEditPostId] = useAtom(editPostIdAtom);
+	const [selectedPost, setSelectedPost] = useState<{
+		id: string;
+		isDraft: boolean;
+	} | null>(null);
 
 	const queryClient = useQueryClient();
 
@@ -21,9 +36,9 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 		queryKey: ['my-posts'],
 		queryFn: async () => {
 			const response = await axios.get('/api/my-posts');
-			return response.data.posts;
+			return response.data;
 		},
-		initialData,
+		placeholderData: initialData,
 	});
 
 	const getMyPost = useQuery<unknown, Error, Post>({
@@ -33,6 +48,33 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 			return response.data.post;
 		},
 		enabled: !!editPostId,
+	});
+
+	const publishMyPost = useMutation<unknown, Error, { isDraft: boolean }>({
+		mutationKey: ['publish-my-post', selectedPost?.id],
+		mutationFn: async ({ isDraft }: { isDraft: boolean }) => {
+			const response = await axios.patch(
+				`/api/post/${selectedPost?.id}/publish`,
+				{
+					isDraft,
+				}
+			);
+			return response.data.post;
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['my-posts'],
+			});
+			setSelectedPost(null);
+		},
+		onError: (error) => {
+			setSelectedPost(null);
+			Swal.fire({
+				title: 'Error',
+				text: error.message,
+				icon: 'error',
+			});
+		},
 	});
 
 	const deleteMyPost = useMutation<unknown, Error, { id: string }>({
@@ -69,6 +111,13 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	};
 
 	useEffect(() => {
+		if (selectedPost) {
+			publishMyPost.mutate({ isDraft: !selectedPost.isDraft });
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedPost]);
+
+	useEffect(() => {
 		if (editPostId) {
 			queryClient.invalidateQueries({
 				queryKey: ['my-post', editPostId],
@@ -99,20 +148,57 @@ export const DashboardPostList = ({ initialData }: { initialData: Post[] }) => {
 	}
 
 	return (
-		<div className="flex gap-4 justify-center items-center flex-wrap">
-			{getMyPosts.data.length > 0 ? (
-				getMyPosts.data.map((post: Post) => (
-					<PostCard
-						key={post.id}
-						post={post}
-						mode="my-post"
-						onEdit={() => setEditPostId(post.id)}
-						onDelete={() => handleDelete(post.id)}
-					/>
-				))
-			) : (
-				<p>No Post</p>
-			)}
+		<div>
+			<fieldset className="border">
+				<legend className="ml-10 p-2 font-bold text-primary">Published</legend>
+				<div className="flex gap-4 items-center flex-wrap m-4">
+					{getMyPosts.data.published.length > 0 ? (
+						getMyPosts.data.published.map((post: Post) => (
+							<PostCard
+								key={post.id}
+								post={post}
+								mode="my-post"
+								onEdit={() => setEditPostId(post.id)}
+								onDelete={() => handleDelete(post.id)}
+								toggleDraft={() => {
+									setSelectedPost({ id: post.id, isDraft: post.isDraft });
+								}}
+								isLoading={publishMyPost.isPending}
+							/>
+						))
+					) : (
+						<p className="text-center w-full bg-primary text-primary-foreground rounded font-bold p-2">
+							No Post Published
+						</p>
+					)}
+				</div>
+			</fieldset>
+			<fieldset className="mt-6 border">
+				<legend className="ml-10 p-2 font-bold text-primary">
+					Unpublished
+				</legend>
+				<div className="flex gap-4 items-center flex-wrap m-4">
+					{getMyPosts.data.unpublished.length > 0 ? (
+						getMyPosts.data.unpublished.map((post: Post) => (
+							<PostCard
+								key={post.id}
+								post={post}
+								mode="my-post"
+								onEdit={() => setEditPostId(post.id)}
+								onDelete={() => handleDelete(post.id)}
+								toggleDraft={() => {
+									setSelectedPost({ id: post.id, isDraft: post.isDraft });
+								}}
+								isLoading={publishMyPost.isPending}
+							/>
+						))
+					) : (
+						<p className="text-center w-full bg-primary text-primary-foreground rounded font-bold p-2">
+							No Unpublished Post
+						</p>
+					)}
+				</div>
+			</fieldset>
 		</div>
 	);
 };

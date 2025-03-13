@@ -1,6 +1,5 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import { Container, Theme } from '@radix-ui/themes';
 import { SessionProvider } from 'next-auth/react';
 import QueryProvider from '@/components/QueryProvider';
 
@@ -20,7 +19,7 @@ export default async function Layout({
 						<Navbar className="h-full bg-transparent" />
 					</div>
 					<ScrollArea className="root-content">
-						<Container className="relative">{children}</Container>
+						<div className="relative">{children}</div>
 					</ScrollArea>
 				</main>
 			</SessionProvider>

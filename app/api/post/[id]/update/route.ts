@@ -121,7 +121,6 @@ export const PUT = async (
 		const post = await prisma.post.update({
 			where: { id },
 			data: {
-				isDraft: false,
 				title,
 				slug,
 				description,

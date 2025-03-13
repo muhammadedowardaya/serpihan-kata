@@ -17,7 +17,26 @@ import Swal from 'sweetalert2';
 
 import '@/styles/quill-editor.scss';
 
-import '@/lib/CustomTab.js';
+import { CustomTabBlot } from '@/lib/CustomTab.js';
+import { addUndoRedoHandlers } from '@/lib/undoRedo';
+
+const applyCustomIndent = (editor: Quill, type: 'increase' | 'decrease') => {
+	const range = editor.getSelection();
+	if (!range) return;
+
+	if (type === 'increase') {
+		// Tambahkan custom tab di posisi kursor
+		editor.insertEmbed(range.index, 'custom-tab', true);
+	} else {
+		// Hapus custom tab jika ada
+		const [blot, offset] = editor.getLeaf(range.index);
+		if (blot instanceof CustomTabBlot) {
+			editor.deleteText(range.index - offset, 1);
+		}
+	}
+
+	editor.setSelection(range.index + 1); // Geser kursor ke depan
+};
 
 const QuillEditor = ({
 	field,
@@ -33,6 +52,9 @@ const QuillEditor = ({
 	const [postData] = useAtom(loadablePostData);
 	const [, setProgress] = useAtom(progressAtom);
 
+	const undoRef = useRef<HTMLButtonElement | null>(null);
+	const redoRef = useRef<HTMLButtonElement | null>(null);
+
 	const editorRef = useRef<Quill | null>(null);
 	const editorContainer = useRef<HTMLDivElement | null>(null);
 
@@ -45,6 +67,7 @@ const QuillEditor = ({
 				editorRef.current.root.innerHTML = field.value || '';
 			}
 		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editorRef.current, postId, editPostId, postData.state]);
 
@@ -199,13 +222,27 @@ const QuillEditor = ({
 								],
 								handlers: {
 									image: () => handleImageUpload(editor, currentPostId),
+									undo: () => editor.history.undo(),
+									redo: () => editor.history.redo(),
+									indent: (value: string) =>
+										applyCustomIndent(
+											editor,
+											value === '+1' ? 'increase' : 'decrease'
+										),
 								},
 							},
 							keyboard: {
 								bindings: bindings,
 							},
+							history: {
+								delay: 2000,
+								maxStack: 500,
+								userOnly: true,
+							},
 						},
 					});
+
+					addUndoRedoHandlers(editor);
 
 					editor.on('text-change', () => {
 						if (onContentChange) onContentChange(editor.root.innerHTML);
@@ -213,14 +250,11 @@ const QuillEditor = ({
 					});
 
 					editorRef.current = editor;
-
-					console.info('editor', editor);
 				}
 			}
 		};
 
 		initializeEditor();
-		console.info('initializeEditor dijalankan');
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [asyncPostId, postId, editPostId, postData.state]);

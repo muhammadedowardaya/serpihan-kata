@@ -30,7 +30,8 @@
 		".next/types/**/*.ts",
 		"lib/CustomCodeBlock.js",
 		"server.ts",
-		"socket-client.ts"
+		"socket-client.ts",
+		"lib/CustomTab.js"
 	],
 	"exclude": ["node_modules"]
 }

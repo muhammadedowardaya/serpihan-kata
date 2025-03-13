@@ -18,7 +18,13 @@ import { ScrollArea } from './ui/scroll-area';
 import { useSession } from 'next-auth/react';
 import { MyProfileSkeleton } from './MyProfileSkeleton';
 
-export const MyProfile = ({ userId }: { userId: string }) => {
+export const MyProfile = ({
+	userId,
+	className,
+}: {
+	userId: string;
+	className?: string;
+}) => {
 	const { data: session } = useSession();
 
 	const queryClient = useQueryClient();
@@ -88,7 +94,9 @@ export const MyProfile = ({ userId }: { userId: string }) => {
 	}
 
 	return (
-		<div className="my-profile mx-auto rounded-xl overflow-hidden shadow-lg relative z-20">
+		<div
+			className={`my-profile rounded-xl overflow-hidden shadow-lg relative z-20 ${className}`}
+		>
 			{/* Profile Header */}
 
 			<div className="my-profile__image">
@@ -104,7 +112,7 @@ export const MyProfile = ({ userId }: { userId: string }) => {
 								height={128}
 							/>
 						) : (
-							<div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+							<div className="w-full h-full bg-primary flex items-center justify-center text-primary-foreground">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="48"

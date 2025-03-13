@@ -71,6 +71,14 @@ const Navbar = ({ className }: { className?: string }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
 
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	if (!isClient) return null;
+
 	return (
 		<nav className={`flex justify-between items-center ${className}`}>
 			<Link href="/" className="shrink-0">

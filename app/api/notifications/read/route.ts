@@ -13,8 +13,8 @@ export const GET = async (request: NextRequest) => {
 		const session = await auth();
 		const userId = session?.user.id;
 
-		const unreadNotifications = await prisma.notification.findMany({
-			where: { userId, isRead: false },
+		const readNotifications = await prisma.notification.findMany({
+			where: { userId, isRead: true },
 			include: {
 				comment: {
 					select: {
@@ -39,16 +39,16 @@ export const GET = async (request: NextRequest) => {
 			orderBy: { createdAt: 'desc' },
 		});
 
-		const totalUnreadNotifications = await prisma.notification.count({
+		const totalReadNotifications = await prisma.notification.count({
 			where: {
 				userId,
-				isRead: false,
+				isRead: true,
 			},
 		});
 
-		const hasMore = offset + limit < totalUnreadNotifications;
+		const hasMore = offset + limit < totalReadNotifications;
 
-		const unread: NotificationItemProps[] = unreadNotifications.map((n) => ({
+		const read: NotificationItemProps[] = readNotifications.map((n) => ({
 			id: n.id,
 			type: n.type as NotificationItemProps['type'],
 			createdAt: n.createdAt,
@@ -63,7 +63,7 @@ export const GET = async (request: NextRequest) => {
 
 		return NextResponse.json(
 			{
-				unread,
+				read,
 				hasMore,
 				page,
 			},

@@ -272,7 +272,7 @@ const PostContent = ({
 				</section>
 			)}
 
-			<section className="grid prose sm:prose-xl md:prose-2xl w-full mx-auto mt-4 main-content relative z-40">
+			<section className="pt-4 sm:pt-0 grid prose sm:prose-xl md:prose-2xl w-full mx-auto mt-4 main-content relative z-40">
 				<ScrollArea className="px-4">
 					<ShowPostContent data={data} />
 				</ScrollArea>

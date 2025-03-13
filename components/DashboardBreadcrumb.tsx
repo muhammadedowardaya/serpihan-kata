@@ -42,7 +42,7 @@ const DashboardBreadcrumb = () => {
 										</BreadcrumbPage>
 									) : (
 										<BreadcrumbLink
-											className="underline underline-offset-2 text-slate-500 md:text-slate-200 md:hover:text-white"
+											className="text-slate-200 hover:text-white"
 											href={href}
 										>
 											{segment}

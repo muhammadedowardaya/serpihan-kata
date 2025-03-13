@@ -32,14 +32,13 @@ import { useAtomValue } from 'jotai';
 import { userAtom } from '@/jotai';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionButtonMyPosts } from './ActionButtonMyPosts';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const NavbarDashboard = ({ className }: { className?: string }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const user = useAtomValue(userAtom);
 
-	const xs = useMediaQuery('(min-width: 460px)');
+	const [xs, setXs] = useState(false);
 
 	const router = useRouter();
 	const pathname = usePathname();
@@ -51,6 +50,7 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 			return response.data.user;
 		},
 		enabled: !!user,
+		initialData: user as User,
 	});
 
 	let avatarFallbackLetter = '';
@@ -72,11 +72,23 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 	}
 
 	useEffect(() => {
+		setXs(window.matchMedia('(min-width: 460px)').matches);
+	}, []);
+
+	useEffect(() => {
 		if (user && !user?.username) {
-			router.push('/dashboard/profile');
+			setTimeout(() => router.push('/dashboard/profile'), 100);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);
+
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	if (!isClient) return null;
 
 	return (
 		<nav className={`flex justify-between items-center ${className}`}>
@@ -148,14 +160,28 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 										</MenubarItem>
 										<MenubarSeparator />
 										<MenubarItem asChild>
-											<Link href="/dashboard" className="navbar-item">
+											<Link
+												href="/dashboard"
+												className={`navbar-item ${
+													pathname === '/dashboard'
+														? 'bg-primary !text-primary-foreground'
+														: ''
+												}`}
+											>
 												<LayoutDashboard />
 												<span>Dashboard</span>
 											</Link>
 										</MenubarItem>
 										<MenubarSeparator />
 										<MenubarItem asChild>
-											<Link href="/dashboard/profile" className="navbar-item">
+											<Link
+												href="/dashboard/profile"
+												className={`navbar-item ${
+													pathname === '/dashboard/profile'
+														? 'bg-primary !text-primary-foreground'
+														: ''
+												}`}
+											>
 												<UserIcon />
 												<span>Profile</span>
 											</Link>
@@ -164,7 +190,11 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 										<MenubarItem asChild>
 											<Link
 												href="/dashboard/notifications"
-												className="navbar-item"
+												className={`navbar-item ${
+													pathname === '/dashboard/notifications'
+														? 'bg-primary !text-primary-foreground'
+														: ''
+												}`}
 											>
 												<Bell />
 												<span>Notifications</span>
@@ -173,7 +203,14 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 										</MenubarItem>
 										<MenubarSeparator />
 										<MenubarItem asChild>
-											<Link href="/dashboard/posts" className="navbar-item">
+											<Link
+												href="/dashboard/posts"
+												className={`navbar-item ${
+													pathname.startsWith('/dashboard/posts')
+														? 'bg-primary !text-primary-foreground'
+														: ''
+												}`}
+											>
 												<LayoutList />
 												<span>My Posts</span>
 											</Link>
@@ -182,7 +219,11 @@ const NavbarDashboard = ({ className }: { className?: string }) => {
 										<MenubarItem asChild>
 											<Link
 												href="/dashboard/saved-posts"
-												className="navbar-item"
+												className={`navbar-item ${
+													pathname.startsWith('/dashboard/saved-posts')
+														? 'bg-primary !text-primary-foreground'
+														: ''
+												}`}
 											>
 												<ListChecks />
 												<span>Saved Posts</span>

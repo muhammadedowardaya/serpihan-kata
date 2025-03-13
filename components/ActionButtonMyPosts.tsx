@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 import { useSession } from 'next-auth/react';
 import { useAtom, useSetAtom } from 'jotai';
 import { editPostIdAtom, postIdAtom, resetPostDataAtom } from '@/jotai';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import { LoaderCircle, Plus } from 'lucide-react';
 
@@ -18,6 +18,8 @@ export const ActionButtonMyPosts = () => {
 	const resetPostData = useSetAtom(resetPostDataAtom);
 	const [, setPostId] = useAtom(postIdAtom);
 	const { data } = useSession();
+
+	const pathname = usePathname();
 
 	const mutation = useMutation<
 		{ postId: string; userId: string }, // Success response
@@ -59,7 +61,7 @@ export const ActionButtonMyPosts = () => {
 		mutation.mutate({ postId, userId });
 	};
 
-	if (editPostId) {
+	if (editPostId && pathname.startsWith('/dashboard/posts')) {
 		return (
 			<Button
 				onClick={() => {

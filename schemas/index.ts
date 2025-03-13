@@ -28,7 +28,7 @@ export const userSchema = z.object({
 		.string()
 		.min(1, 'Username is required')
 		.min(3, 'Username must be at least 3 characters.')
-		.max(30, 'Username must not exceed 30 characters.')
+		.max(18, 'Username must not exceed 18 characters.')
 		.regex(
 			/^[a-zA-Z0-9_]+$/,
 			'Username can only contain letters, numbers, and underscores.'
@@ -105,6 +105,7 @@ export const postSchema = z.object({
 					'image/jpg',
 					'image/svg+xml',
 					'image/gif',
+					'image/webp',
 				].includes(file.type), // Validasi jenis file
 			{
 				message:

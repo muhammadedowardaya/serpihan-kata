@@ -70,7 +70,11 @@ export const NotificationItem = ({
 				<span className="font-semibold text-slate-900">{username} </span>
 				<span className="text-slate-700">{notificationMessage} </span>
 				<span className="text-slate-400 break-keep whitespace-nowrap">
-					{timeAgo(createdAt.toISOString())}
+					{timeAgo(
+						typeof createdAt === 'string'
+							? new Date(createdAt).toISOString()
+							: createdAt.toISOString()
+					)}
 				</span>
 			</p>
 

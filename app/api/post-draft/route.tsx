@@ -24,7 +24,7 @@ export const POST = async (request: Request) => {
 					},
 				},
 				title: 'Draft Title',
-				slug: postId,
+				slug: 'draft-' + postId,
 				description: 'Draft Description',
 				content: 'Draft Content',
 			},

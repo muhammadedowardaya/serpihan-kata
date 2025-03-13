@@ -17,7 +17,7 @@ export const saveImage = async (file: File, postId: string) => {
 		const extension = path.extname(file.name).slice(1).toLowerCase();
 		console.info('File extension:', extension);
 
-		const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+		const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 		if (!allowedExtensions.includes(extension)) {
 			console.warn('Invalid file extension:', extension);
 			throw new Error('Invalid file type');

@@ -10,7 +10,15 @@ import {
 	CardHeader,
 } from '@/components/ui/card';
 import { timeAgo } from '@/lib/utils';
-import { EllipsisVertical, EyeIcon, Pencil, Trash2 } from 'lucide-react';
+import {
+	ArrowBigDown,
+	ArrowBigUp,
+	EllipsisVertical,
+	EyeIcon,
+	LoaderCircle,
+	Pencil,
+	Trash2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Post } from '@/types';
 import {
@@ -31,15 +39,19 @@ const PostCard = ({
 	mode = 'normal',
 	onDelete = () => {},
 	onEdit = () => {},
+	toggleDraft = () => {},
 	size = 'sm',
 	fullWidth,
+	isLoading,
 }: {
 	post: Post;
 	mode?: 'normal' | 'saved-post' | 'my-post';
 	onDelete?: () => void;
 	onEdit?: () => void;
+	toggleDraft?: () => void;
 	size?: 'sm' | 'md';
 	fullWidth?: boolean;
+	isLoading?: boolean;
 }) => {
 	const {
 		createdAt,
@@ -68,7 +80,7 @@ const PostCard = ({
 					: fullWidth
 					? 'max-w-full'
 					: 'max-w-[300px]'
-			} border border-border m-[2px] p-[2px] h-max break-inside-avoid relative overflow-hidden`}
+			} border border-border m-[2px] p-[2px] h-max break-inside-avoid relative z-0 overflow-hidden`}
 		>
 			<CardHeader className="flex flex-col gap-2 pb-2 px-4 pt-4">
 				{mode === 'normal' && (
@@ -126,11 +138,33 @@ const PostCard = ({
 								<MenubarTrigger className="p-0 ">
 									<EllipsisVertical size={20} />
 								</MenubarTrigger>
-								<MenubarContent className="min-w-max">
+								<MenubarContent className="min-w-max p-2">
 									<MenubarItem asChild className="p-0">
 										<div className="w-full">
 											<Button
-												variant="accent"
+												variant="ghost"
+												className="w-full border border-primary"
+												onClick={() => {
+													if (toggleDraft) {
+														toggleDraft();
+													}
+												}}
+											>
+												{isDraft ? (
+													<ArrowBigUp size={20} />
+												) : (
+													<ArrowBigDown size={20} />
+												)}
+
+												{isDraft ? 'Publish' : 'Draft'}
+											</Button>
+										</div>
+									</MenubarItem>
+									<MenubarSeparator />
+									<MenubarItem asChild className="p-0">
+										<div className="w-full border border-primary">
+											<Button
+												variant="ghost"
 												className="w-full"
 												onClick={() => {
 													if (onEdit) {
@@ -256,6 +290,14 @@ const PostCard = ({
 					</Link>
 				</Button> */}
 			</CardFooter>
+			{isLoading && (
+				<div className="absolute w-full h-full inset-0 z-10 backdrop-blur-xs bg-black/50 flex items-center justify-center">
+					<div className="flex items-center justify-center gap-2 text-white">
+						<LoaderCircle className="animate-spin size-10" />
+						<span className="drop-shadow-md shadow-black">Loading...</span>
+					</div>
+				</div>
+			)}
 		</Card>
 	);
 };
