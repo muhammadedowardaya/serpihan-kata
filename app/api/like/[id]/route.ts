@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
 	request: NextRequest,
-	{ params }: { params: { postId: string } }
+	{ params }: { params: Promise<{ postId: string }> }
 ) => {
 	try {
-		const { postId } = params;
+		const postId = (await params).postId;
 
 		if (!postId) {
 			return NextResponse.json(
@@ -31,9 +31,6 @@ export const GET = async (
 
 		return NextResponse.json({ success: true, likes });
 	} catch (error) {
-		return NextResponse.json(
-			{ success: false, error: error },
-			{ status: 500 }
-		);
+		return NextResponse.json({ success: false, error: error }, { status: 500 });
 	}
 };

@@ -1,5 +1,4 @@
 import { getUnreadNotification } from '@/actions/notification';
-import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -12,9 +11,6 @@ export const GET = async (
 	}
 ) => {
 	try {
-		const session = await auth();
-		const userId = session?.user?.id;
-
 		const id = (await params).id;
 
 		const comment = await prisma.comment.findFirst({

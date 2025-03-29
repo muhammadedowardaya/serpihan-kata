@@ -43,7 +43,7 @@ export default function DecryptedText({
 	const containerRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
-		let interval: number;
+		let interval: any;
 		let currentIteration = 0;
 
 		const getNextIndex = (revealedSet: Set<number>): number => {

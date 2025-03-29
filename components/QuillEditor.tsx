@@ -52,9 +52,6 @@ const QuillEditor = ({
 	const [postData] = useAtom(loadablePostData);
 	const [, setProgress] = useAtom(progressAtom);
 
-	const undoRef = useRef<HTMLButtonElement | null>(null);
-	const redoRef = useRef<HTMLButtonElement | null>(null);
-
 	const editorRef = useRef<Quill | null>(null);
 	const editorContainer = useRef<HTMLDivElement | null>(null);
 

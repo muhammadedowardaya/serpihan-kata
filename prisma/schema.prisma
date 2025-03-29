@@ -66,23 +66,6 @@ model socialMedia {
     user   user?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model tag {
-    id       String    @id @default(cuid())
-    label    String // Supaya tidak ada tag duplikat
-    value    String    @unique // Supaya tidak ada tag duplikat
-    postTags postTag[]
-}
-
-model postTag {
-    postId String
-    tagId  String
-
-    post post @relation(fields: [postId], references: [id], onDelete: Cascade)
-    tag  tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-    @@id([postId, tagId])
-}
-
 model notification {
     id        String           @id @default(cuid())
     userId    String // User yang akan menerima notifikasi
@@ -170,6 +153,23 @@ model post {
     postTag   postTag[]
 
     @@index([userId], map: "Post_userId_idx")
+}
+
+model tag {
+    id       String    @id @default(cuid())
+    label    String // Supaya tidak ada tag duplikat
+    value    String    @unique // Supaya tidak ada tag duplikat
+    postTags postTag[]
+}
+
+model postTag {
+    postId String
+    tagId  String
+
+    post post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    tag  tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@id([postId, tagId])
 }
 
 model savedPost {

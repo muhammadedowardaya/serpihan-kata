@@ -9,6 +9,11 @@ import { User } from 'next-auth';
 export const metadata: Metadata = {
 	title: 'Serpihan Kata',
 	description: 'Serpihan Kata Blog',
+	manifest: '/manifest.json',
+	appleWebApp: {
+		title: 'Serpihan Kata',
+		startupImage: '/apple-icon-180.png',
+	},
 };
 
 export default async function RootLayout({
@@ -32,8 +37,6 @@ export default async function RootLayout({
 	return (
 		<html lang="en">
 			<head>
-				<link rel="manifest" href="manifest.json" />
-				<meta name="apple-mobile-web-app-title" content="Skata" />
 				<meta name="theme-color" content="#000000" />
 			</head>
 			<body>

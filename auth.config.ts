@@ -8,6 +8,8 @@ import { prisma } from './lib/prisma';
 import { compare } from 'bcryptjs';
 
 import { CredentialsSignin } from 'next-auth';
+import redis from './lib/redis';
+import { User } from 'next-auth';
 
 class NoUserError extends CredentialsSignin {
 	code = 'No user found with this email.';
@@ -65,48 +67,72 @@ export default {
 				}
 
 				// Pastikan tipe data cocok dengan User
-				return {
-					id: user.id,
-					username: user.username,
-					role: user.role,
-					socialMedia: user.socialMedia ?? {}, // Pastikan tidak undefined
-				};
+				return user as User;
 			},
 		}),
 	],
 	callbacks: {
 		async signIn({ account, profile, credentials }) {
 			const email = profile?.email || (credentials?.email as string);
-			const existingUser = await prisma.user.findUnique({ where: { email } });
+			if (!email) return false; // Hindari error jika email tidak ditemukan
+
+			const existingUser = await prisma.user.findUnique({
+				where: { email },
+				include: { account: true }, // Ambil semua akun provider user ini
+			});
 
 			if (existingUser) {
-				// Cek apakah akun provider sudah ada di tabel Account
-				const providerAccount = await prisma.account.findFirst({
-					where: {
-						userId: existingUser.id,
-						provider: account?.provider,
-					},
-				});
+				console.log('User ditemukan:', existingUser);
+				console.log('Account ditemukan:', account);
 
-				if (!providerAccount) {
-					// Jika akun provider belum terhubung, hubungkan ke user yang sudah ada
-					await prisma.account.create({
-						data: {
-							user: { connect: { id: existingUser.id } },
-							provider: account?.provider as string,
-							providerAccountId: profile?.sub || `credentials-${email}`,
-							type: account?.type as string,
-							access_token: account?.access_token,
-							expires_at: account?.expires_at,
-						},
-					});
+				if (!existingUser.account?.provider) {
+					console.log('Menambahkan provider baru ke akun yang sudah ada.');
+					try {
+						await prisma.account.create({
+							data: {
+								userId: existingUser.id,
+								provider: account?.provider as string,
+								providerAccountId: profile?.sub || `credentials-${email}`,
+								type: account?.type as string,
+								access_token: account?.access_token,
+								expires_at: account?.expires_at,
+							},
+						});
+					} catch (error) {
+						console.error('Gagal menambahkan provider:', error);
+						return false; // Gagal login jika terjadi error
+					}
+				} else if (
+					(existingUser.account.provider === 'credentials' &&
+						account?.provider === 'google') ||
+					account?.provider === 'github'
+				) {
+					try {
+						await prisma.account.update({
+							where: {
+								userId: existingUser.id,
+							},
+							data: {
+								provider: account?.provider as string,
+								providerAccountId: profile?.sub || `credentials-${email}`,
+								type: account?.type as string,
+								access_token: account?.access_token,
+								expires_at: account?.expires_at,
+							},
+						});
+					} catch (error) {
+						console.error('Gagal menambahkan provider:', error);
+						return false; // Gagal login jika terjadi error
+					}
 				}
 
 				return true; // Login berhasil
 			}
 
+			// Jika user belum ada, biarkan NextAuth menangani pembuatan user baru
 			return true;
 		},
+
 		jwt({ token, user, trigger, session }) {
 			if (user) {
 				token.id = user.id;
@@ -123,12 +149,15 @@ export default {
 			return token;
 		},
 
-		session({ session, token }) {
+		async session({ session, token }) {
 			if (token) {
 				session.user.id = token.id as string;
 				session.user.username = token.username as string;
 				session.user.role = token.role as 'ADMIN' | 'USER';
 			}
+
+			const sessionKey = `session:${token.id}`;
+			await redis.set(sessionKey, JSON.stringify(session), 'EX', 60 * 60 * 24); // Expire dalam 24 jam
 
 			return session;
 		},
@@ -137,5 +166,15 @@ export default {
 	pages: {
 		signIn: '/',
 		error: '/',
+	},
+	events: {
+		async signOut(message) {
+			if ('token' in message && message.token?.sub) {
+				console.log('session dihapus', message.token?.sub);
+				const sessionKey = `session:${message.token.sub}`;
+				await redis.del(sessionKey);
+				console.log(`Session ${sessionKey} berhasil dihapus.`);
+			}
+		},
 	},
 } satisfies NextAuthConfig;

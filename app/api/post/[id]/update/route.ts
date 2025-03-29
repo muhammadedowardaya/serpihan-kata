@@ -117,36 +117,47 @@ export const PUT = async (
 			console.info('thumbnail tidak berubah');
 		}
 
-		// update konten ke database
-		const post = await prisma.post.update({
-			where: { id },
-			data: {
-				title,
-				slug,
-				description,
-				content,
-				thumbnail: thumbnailUrl,
-				user: {
-					connect: {
-						id: userId,
+		await prisma.$transaction(async (tx) => {
+			// Hapus tag yang tidak memiliki post terkait
+			await tx.tag.deleteMany({
+				where: {
+					postTags: {
+						none: {}, // Tag yang tidak memiliki postTag
 					},
 				},
-				postTag: {
-					deleteMany: {}, // Hapus semua relasi postTag sebelum update
-					create: tags.map((tag) => ({
-						tag: {
-							connectOrCreate: {
-								where: { value: tag.value },
-								create: { label: tag.label, value: tag.value },
-							},
+			});
+
+			// update konten ke database
+			await prisma.post.update({
+				where: { id },
+				data: {
+					title,
+					slug,
+					description,
+					content,
+					thumbnail: thumbnailUrl,
+					user: {
+						connect: {
+							id: userId,
 						},
-					})),
+					},
+					postTag: {
+						deleteMany: {}, // Hapus semua relasi postTag sebelum update
+						create: tags.map((tag) => ({
+							tag: {
+								connectOrCreate: {
+									where: { value: tag.value },
+									create: { label: tag.label, value: tag.value },
+								},
+							},
+						})),
+					},
 				},
-			},
+			});
 		});
 
 		return NextResponse.json(
-			{ message: 'Post updated successfully', post },
+			{ message: 'Post updated successfully' },
 			{ status: 201 }
 		);
 	} catch (error) {

@@ -9,13 +9,14 @@ declare module 'next-auth' {
 		id: string;
 		name: string;
 		username?: string;
+		password?: string;
 		email?: string;
 		image?: string;
 		bio?: string;
-		role: 'USER' | 'ADMIN';
-		posts: Post[];
-		comments: Comment[];
-		likes: Like;
+		role?: 'USER' | 'ADMIN';
+		posts?: Post[];
+		comments?: Comment[];
+		likes?: Like;
 		socialMediaId?: string;
 		socialMedia?: SocialMedia;
 	}

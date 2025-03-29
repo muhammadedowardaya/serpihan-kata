@@ -1,7 +1,8 @@
 'use client';
 
 import { subscriptionAtom } from '@/jotai';
-import { registerPushNotification } from '@/lib/registerPushNotification';
+import { registerServiceWorker } from '@/lib/registerServiceWorker';
+// import { registerPushNotification } from '@/lib/registerPushNotification';
 import { socket } from '@/socket-client';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
@@ -14,13 +15,15 @@ export const SocketLayout = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		if (session?.user?.id) {
 			// Mendaftarkan push notification saat komponen dimuat
-			registerPushNotification()
-				.then((response) => {
-					setSubscription(response as PushSubscription);
-					console.info('setSubscription');
-					console.info(response);
-				})
-				.catch(console.error);
+			// registerPushNotification()
+			// 	.then((response) => {
+			// 		setSubscription(response as PushSubscription);
+			// 	})
+			// 	.catch(error => console.error(error));
+
+			registerServiceWorker().then((response) => {
+				setSubscription(response as unknown as PushSubscription);
+			});
 
 			socket.emit('registerUser', session?.user?.id);
 

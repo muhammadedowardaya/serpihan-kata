@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import redis from '@/lib/redis';
 import { saveUserImage } from '@/lib/save-user-image';
 import { SocialMedia } from '@/types';
 import { Prisma } from '@prisma/client';
@@ -9,6 +10,13 @@ export const GET = async () => {
 	try {
 		const session = await auth();
 		const id = session ? session?.user?.id : null;
+
+		const cacheKey = `session:${id}`;
+		const cachedUser = await redis.get(cacheKey);
+
+		if (cachedUser) {
+			return NextResponse.json({ user: cachedUser }, { status: 200 });
+		}
 
 		let user;
 

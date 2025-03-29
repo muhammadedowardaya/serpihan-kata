@@ -10,7 +10,9 @@ export const registerPushNotification = async () => {
 
 	try {
 		console.log('🔹 Mendaftarkan Service Worker...');
-		const registration = await navigator.serviceWorker.register('/sw.js');
+		const registration = await navigator.serviceWorker.register(
+			'/service-worker.js'
+		);
 		console.log('✅ Service Worker terdaftar:', registration);
 
 		await navigator.serviceWorker.ready;

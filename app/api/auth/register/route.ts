@@ -19,7 +19,7 @@ export const POST = async (request: NextRequest) => {
 				existingUser.email === email
 					? 'Email already exists.'
 					: 'Username already exists.';
-			return NextResponse.json({ error: errorMessage, status: 400 });
+			return NextResponse.json({ error: errorMessage }, { status: 400 });
 		}
 
 		// Hash password sebelum menyimpan ke database

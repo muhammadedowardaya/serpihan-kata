@@ -66,7 +66,6 @@ const Navbar = ({ className }: { className?: string }) => {
 	useEffect(() => {
 		if (user && !user?.username) {
 			router.push('/dashboard/profile');
-			console.info({ user });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user]);

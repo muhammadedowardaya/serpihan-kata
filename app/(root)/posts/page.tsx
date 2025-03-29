@@ -74,7 +74,7 @@ export default async function PostsPage({
 			<Section className="relative pt-0 pb-6">
 				{/* Header */}
 				<div className="bg-background relative z-40 flex items-center gap-x-4 pt-8 px-1 justify-center text-center">
-					<h2 className="text-2xl sm:text-4xl font-bold font-satisfy">
+					<h2 className="text-2xl sm:text-4xl font-bold font-satisfy md:py-2">
 						Jelajahi Beragam Tulisan
 					</h2>
 				</div>

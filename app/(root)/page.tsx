@@ -1,6 +1,7 @@
 import PostCard from '@/components/PostCard';
 import { Button } from '@/components/ui/button';
 import { prisma } from '@/lib/prisma';
+import redis from '@/lib/redis';
 import { Post } from '@/types';
 import {
 	Bookmark,
@@ -14,24 +15,36 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default async function Home() {
-	const popularPosts = await prisma.post.findMany({
-		where: {
-			isDraft: false,
-		},
-		take: 3,
-		orderBy: {
-			// views: 'desc',
-			createdAt: 'desc',
-		},
-		include: {
-			user: true,
-			postTag: {
-				include: {
-					tag: true,
+	let popularPosts;
+	const cacheKey = 'popularPosts';
+	const cachedPosts = await redis.get(cacheKey);
+
+	if (cachedPosts) {
+		console.log('menggunakan redis');
+		popularPosts = JSON.parse(cachedPosts);
+	} else {
+		console.log('ambil dulu dari database');
+		popularPosts = await prisma.post.findMany({
+			where: {
+				isDraft: false,
+			},
+			take: 3,
+			orderBy: {
+				// views: 'desc',
+				createdAt: 'desc',
+			},
+			include: {
+				user: true,
+				postTag: {
+					include: {
+						tag: true,
+					},
 				},
 			},
-		},
-	});
+		});
+
+		await redis.set(cacheKey, JSON.stringify(popularPosts));
+	}
 
 	return (
 		<div className="relative bg-background">
@@ -117,7 +130,7 @@ export default async function Home() {
 				<div className="flex flex-wrap items-center justify-center gap-10">
 					{/* Contoh card postingan, bisa di-fetch dari API */}
 					{popularPosts.length > 0 ? (
-						popularPosts.map((post) => (
+						popularPosts.map((post: Post) => (
 							<PostCard
 								key={post.id}
 								post={post as unknown as Post}
