@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import redis from '@/lib/redis';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
@@ -7,6 +8,14 @@ export const GET = async (
 ) => {
 	try {
 		const userId = (await params).id;
+
+		const cacheKey = `session:${userId}`;
+		const cachedUser = await redis.get(cacheKey);
+
+		if (cachedUser) {
+			return NextResponse.json(JSON.parse(cachedUser), { status: 200 });
+		}
+
 		const user = await prisma.user.findUnique({
 			where: {
 				id: userId,

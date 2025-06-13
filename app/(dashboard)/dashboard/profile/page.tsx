@@ -41,22 +41,23 @@ const ProfilePage = () => {
 
 	const queryClient = useQueryClient();
 
-	const getUser = useQuery<unknown, Error, User>({
+	const getUser = useQuery<unknown, Error, { user: User }>({
 		queryKey: ['profile'],
 		queryFn: async () => {
 			const response = await axios.get(`/api/user`);
-			return response.data.user;
+			return response.data;
 		},
 		enabled: !!session?.user?.id,
 	});
 
 	useEffect(() => {
-		if (getUser.data) {
-			if (!getUser.data?.username) {
+		if (getUser?.data && getUser.data.user) {
+			if (!getUser.data.user.username) {
 				setShowAlertwarning(true);
 			}
+			console.info(getUser.data.user);
 		}
-	}, [getUser.data]);
+	}, [getUser?.data]);
 
 	useEffect(() => {
 		queryClient.invalidateQueries({ queryKey: ['profile'] });
@@ -71,7 +72,7 @@ const ProfilePage = () => {
 						{editProfile ? (
 							<Button
 								variant="destructive"
-								className="md:sticky top-2 md:top-4 -right-4 rounded-full z-40 ml-auto w-[40px] h-[40px]"
+								className="md:sticky static mt-4 md:mt-0 md:top-4 -right-4 rounded-full z-40 ml-auto w-[40px] h-[40px]"
 								onClick={() => setEditProfile(false)}
 							>
 								<X size={20} className="p-0" />
@@ -79,7 +80,7 @@ const ProfilePage = () => {
 						) : (
 							<Button
 								variant="secondary"
-								className="md:sticky top-2 md:top-4 -right-4 rounded-full z-40 ml-auto w-[50px] h-[50px]"
+								className="md:sticky static mt-4 md:mt-0 md:top-4 -right-4 rounded-full z-40 ml-auto w-[50px] h-[50px]"
 								onClick={() => setEditProfile(true)}
 							>
 								<Pencil size={20} />
@@ -96,7 +97,7 @@ const ProfilePage = () => {
 				{editProfile ? 'Edit Profile' : 'Profile'}
 			</h1>
 			{!editProfile ? (
-				<MyProfile userId={session?.user.id as string} />
+				<MyProfile userId={getUser?.data?.user?.id as string} />
 			) : (
 				<EditFormProfile />
 			)}
@@ -106,7 +107,7 @@ const ProfilePage = () => {
 				title="Warning"
 				description={
 					<div>
-						Hi <b>{getUser.data?.email}</b>, your username is not set. A
+						Hi <b>{getUser.data?.user?.email}</b>, your username is not set. A
 						username is required to continue. Set it now to proceed.
 					</div>
 				}

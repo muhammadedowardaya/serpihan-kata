@@ -212,7 +212,7 @@
 
 @layer utilities {
 	.padding-content {
-		@apply px-[30px] xxs:px-[30px] xs:px-[40px] sm:px-[60px] md:px-[50px];
+		@apply px-[30px] xxs:px-[30px] xs:px-[40px] sm:px-[60px] md:px-[120px];
 	}
 }
 

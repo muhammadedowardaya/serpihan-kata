@@ -10,7 +10,8 @@
 		"build": "bun run next build",
 		"start": "NODE_ENV=production bun run server.js",
 		"lint": "bun run next lint",
-		"test": "bun run jest"
+		"test": "bun run jest",
+		"postinstall": "prisma generate"
 	},
 	"jest": {
 		"transform": {

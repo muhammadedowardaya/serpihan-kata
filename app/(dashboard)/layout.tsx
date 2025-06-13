@@ -1,7 +1,7 @@
 import { AppSidebar } from '@/components/AppSidebar';
 import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
 import ModalProgress from '@/components/ModalProgress';
-import NavbarDashboard from '@/components/NavbarDashboard';
+import NavbarDashboard from '@/components/features/navbar-dashboard/NavbarDashboard';
 import QueryProvider from '@/components/QueryProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SessionProvider } from 'next-auth/react';
@@ -36,7 +36,7 @@ export default async function LayoutDashboard({
 							<div className="navbar-dashboard padding-content">
 								<NavbarDashboard className="w-full" />
 							</div>
-							<div className="breadcrumb-dashboard padding-content">
+							<div className="breadcrumb-dashboard md:pl-16 md:pr-12">
 								<DashboardBreadcrumb />
 								<div className="gap-4 items-center hidden md:flex">
 									<span className="text-sm md:text-base hidden xxs:inline-block font-normal">

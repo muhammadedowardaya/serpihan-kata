@@ -1,7 +1,7 @@
 import PostCard from '@/components/PostCard';
 import { Button } from '@/components/ui/button';
-import { prisma } from '@/lib/prisma';
-import redis from '@/lib/redis';
+// import { prisma } from '@/lib/prisma';
+// import redis from '@/lib/redis';
 import { Post } from '@/types';
 import {
 	Bookmark,
@@ -15,36 +15,36 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default async function Home() {
-	let popularPosts;
-	const cacheKey = 'popularPosts';
-	const cachedPosts = await redis.get(cacheKey);
+	const popularPosts = [] as Post[];
+	// const cacheKey = 'popularPosts';
+	// const cachedPosts = await redis.get(cacheKey);
 
-	if (cachedPosts) {
-		console.log('menggunakan redis');
-		popularPosts = JSON.parse(cachedPosts);
-	} else {
-		console.log('ambil dulu dari database');
-		popularPosts = await prisma.post.findMany({
-			where: {
-				isDraft: false,
-			},
-			take: 3,
-			orderBy: {
-				// views: 'desc',
-				createdAt: 'desc',
-			},
-			include: {
-				user: true,
-				postTag: {
-					include: {
-						tag: true,
-					},
-				},
-			},
-		});
+	// if (cachedPosts) {
+	// 	console.log('menggunakan redis');
+	// 	popularPosts = JSON.parse(cachedPosts);
+	// } else {
+	// 	console.log('ambil dulu dari database');
+	// 	popularPosts = await prisma.post.findMany({
+	// 		where: {
+	// 			isDraft: false,
+	// 		},
+	// 		take: 3,
+	// 		orderBy: {
+	// 			// views: 'desc',
+	// 			createdAt: 'desc',
+	// 		},
+	// 		include: {
+	// 			user: true,
+	// 			postTag: {
+	// 				include: {
+	// 					tag: true,
+	// 				},
+	// 			},
+	// 		},
+	// 	});
 
-		await redis.set(cacheKey, JSON.stringify(popularPosts));
-	}
+	// 	await redis.set(cacheKey, JSON.stringify(popularPosts));
+	// }
 
 	return (
 		<div className="relative bg-background">

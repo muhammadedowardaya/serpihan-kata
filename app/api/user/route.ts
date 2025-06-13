@@ -15,8 +15,9 @@ export const GET = async () => {
 		const cachedUser = await redis.get(cacheKey);
 
 		if (cachedUser) {
-			return NextResponse.json({ user: cachedUser }, { status: 200 });
+			return NextResponse.json(JSON.parse(cachedUser), { status: 200 });
 		}
+
 
 		let user;
 
@@ -44,7 +45,7 @@ export const GET = async () => {
 			user = null;
 		}
 
-		return NextResponse.json({ user, status: 200 });
+		return NextResponse.json({ user }, { status: 200 });
 	} catch (error) {
 		if (error instanceof Error) {
 			console.info(error.message);

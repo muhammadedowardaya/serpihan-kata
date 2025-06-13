@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import ChooseLoginButton from './ChooseLoginButton';
+import ChooseLoginButton from '../../ChooseLoginButton';
 
 import {
 	Menubar,
@@ -13,18 +13,18 @@ import {
 	MenubarSeparator,
 	MenubarTrigger,
 } from '@/components/ui/menubar';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { LogoutButton } from './LogoutButton';
+import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
+import { LogoutButton } from '../../LogoutButton';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '../../ui/skeleton';
 import { Bell, House, LayoutList, ListChecks, UserIcon } from 'lucide-react';
-import { UnreadNotification } from './UnreadNotifications';
+import { UnreadNotification } from '../../UnreadNotifications';
 import { User } from 'next-auth';
 import { useAtomValue } from 'jotai';
 import { userAtom } from '@/jotai';
 import { useRouter } from 'next/navigation';
-import { ActionButtonMyPosts } from './ActionButtonMyPosts';
+import { ActionButtonMyPosts } from '../../ActionButtonMyPosts';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const Navbar = ({ className }: { className?: string }) => {

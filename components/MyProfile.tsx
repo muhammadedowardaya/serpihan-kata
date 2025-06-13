@@ -87,6 +87,9 @@ export const MyProfile = ({
 			).filter(([key, url]) => key !== 'id' && url); // Pastikan id tidak ikut ditampilkan
 			setSocialMedia(socialMediaDataArray);
 		}
+
+		console.info('myProfile data');
+		console.info(getUser.data);
 	}, [getUser.data]);
 
 	if (getUser.isPending) {

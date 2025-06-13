@@ -24,50 +24,52 @@ export default async function PostsPage({
 	const sortBy = params.sort || 'latest';
 
 	// Sorting logic di server
-	let orderBy;
-	if (sortBy === 'popular') {
-		orderBy = { views: 'desc' as const };
-	} else if (sortBy === 'most_commented') {
-		orderBy = { comments: { _count: 'desc' as const } };
-	} else {
-		orderBy = { createdAt: 'desc' as const };
-	}
+	// let orderBy;
+	// if (sortBy === 'popular') {
+	// 	orderBy = { views: 'desc' as const };
+	// } else if (sortBy === 'most_commented') {
+	// 	orderBy = { comments: { _count: 'desc' as const } };
+	// } else {
+	// 	orderBy = { createdAt: 'desc' as const };
+	// }
 
 	// Ambil post dari database
-	const posts = await prisma.post.findMany({
-		include: {
-			user: true,
-			postTag: { include: { tag: true } },
-		},
-		where: {
-			isDraft: false,
-			...(query?.trim()
-				? {
-						OR: [
-							{
-								title: {
-									contains: query.toLowerCase(),
-								},
-							},
-							{
-								description: {
-									contains: query.toLowerCase(),
-								},
-							},
-							{
-								content: {
-									contains: query.toLowerCase(),
-								},
-							},
-						],
-				  }
-				: {}),
-		},
-		orderBy,
-	});
+	// const posts = await prisma.post.findMany({
+	// 	include: {
+	// 		user: true,
+	// 		postTag: { include: { tag: true } },
+	// 	},
+	// 	where: {
+	// 		isDraft: false,
+	// 		...(query?.trim()
+	// 			? {
+	// 					OR: [
+	// 						{
+	// 							title: {
+	// 								contains: query.toLowerCase(),
+	// 							},
+	// 						},
+	// 						{
+	// 							description: {
+	// 								contains: query.toLowerCase(),
+	// 							},
+	// 						},
+	// 						{
+	// 							content: {
+	// 								contains: query.toLowerCase(),
+	// 							},
+	// 						},
+	// 					],
+	// 			  }
+	// 			: {}),
+	// 	},
+	// 	orderBy,
+	// });
 
 	// Ambil daftar tag
 	const tags = await prisma.tag.findMany();
+
+	const posts = [] as Post[];
 
 	return (
 		<div className="relative">
